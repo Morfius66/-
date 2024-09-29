@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Control</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 50px;
+            font-family: Arial, sans-serif;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trading Bot Control</h1>
+
+    <!-- Кнопки для управления ботом -->
+    <a class="button" href="#" onclick="sendData('start_bot')">Включить/выключить бота</a>
+    <a class="button" href="#" onclick="sendData('set_order_amount')">Установить сумму ордера</a>
+    <a class="button" href="#" onclick="sendData('set_timeframes')">Таймфреймы</a>
+    <a class="button" href="#" onclick="sendData('select_symbols')">Монеты</a>
+    <a class="button" href="#" onclick="sendData('close_order')">Закрыть ордер</a>
+    <a class="button" href="#" onclick="sendData('show_pnl')">Прибыль/Убыток</a>
+    <a class="button" href="#" onclick="sendData('show_info')">Информация</a>
+
+    <script>
+        function sendData(command) {
+            // Отправка данных из WebApp в бота
+            Telegram.WebApp.sendData(command);
+        }
+    </script>
+</body>
+</html>
