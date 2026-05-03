@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: 'var(--color-primary-50)',
+                            100: 'var(--color-primary-100)',
+                            200: 'var(--color-primary-200)',
+                            300: 'var(--color-primary-300)',
+                            400: 'var(--color-primary-400)',
+                            500: 'var(--color-primary-500)',
+                            600: 'var(--color-primary-600)',
+                            700: 'var(--color-primary-700)',
+                            800: 'var(--color-primary-800)',
+                            900: 'var(--color-primary-900)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Default theme - Blue (Flowbite Pro default) */
+        :root {
+            --color-primary-50: #eff6ff;
+            --color-primary-100: #dbeafe;
+            --color-primary-200: #bfdbfe;
+            --color-primary-300: #93c5fd;
+            --color-primary-400: #60a5fa;
+            --color-primary-500: #3b82f6;
+            --color-primary-600: #2563eb;
+            --color-primary-700: #1d4ed8;
+            --color-primary-800: #1e40af;
+            --color-primary-900: #1e3a8a;
+        }
+
+        /* Green Theme */
+        [data-theme="green"] {
+            --color-primary-50: #ecfdf5;
+            --color-primary-100: #d1fae5;
+            --color-primary-200: #a7f3d0;
+            --color-primary-300: #6ee7b7;
+            --color-primary-400: #34d399;
+            --color-primary-500: #10b981;
+            --color-primary-600: #059669;
+            --color-primary-700: #047857;
+            --color-primary-800: #065f46;
+            --color-primary-900: #064e3b;
+        }
+
+        /* Purple Theme */
+        [data-theme="purple"] {
+            --color-primary-50: #faf5ff;
+            --color-primary-100: #f3e8ff;
+            --color-primary-200: #e9d5ff;
+            --color-primary-300: #d8b4fe;
+            --color-primary-400: #c084fc;
+            --color-primary-500: #a855f7;
+            --color-primary-600: #9333ea;
+            --color-primary-700: #7e22ce;
+            --color-primary-800: #6b21a8;
+            --color-primary-900: #581c87;
+        }
+
+        /* Red Theme */
+        [data-theme="red"] {
+            --color-primary-50: #fef2f2;
+            --color-primary-100: #fee2e2;
+            --color-primary-200: #fecaca;
+            --color-primary-300: #fca5a5;
+            --color-primary-400: #f87171;
+            --color-primary-500: #ef4444;
+            --color-primary-600: #dc2626;
+            --color-primary-700: #b91c1c;
+            --color-primary-800: #991b1b;
+            --color-primary-900: #7f1d1d;
+        }
+
+        /* Orange Theme */
+        [data-theme="orange"] {
+            --color-primary-50: #fff7ed;
+            --color-primary-100: #ffedd5;
+            --color-primary-200: #fed7aa;
+            --color-primary-300: #fdba74;
+            --color-primary-400: #fb923c;
+            --color-primary-500: #f97316;
+            --color-primary-600: #ea580c;
+            --color-primary-700: #c2410c;
+            --color-primary-800: #9a3412;
+            --color-primary-900: #7c2d12;
+        }
+
+        /* Teal Theme */
+        [data-theme="teal"] {
+            --color-primary-50: #f0fdfa;
+            --color-primary-100: #ccfbf1;
+            --color-primary-200: #99f6e4;
+            --color-primary-300: #5eead4;
+            --color-primary-400: #2dd4bf;
+            --color-primary-500: #14b8a6;
+            --color-primary-600: #0d9488;
+            --color-primary-700: #0f766e;
+            --color-primary-800: #115e59;
+            --color-primary-900: #134e4a;
+        }
+
+        /* Pink Theme */
+        [data-theme="pink"] {
+            --color-primary-50: #fdf2f8;
+            --color-primary-100: #fce7f3;
+            --color-primary-200: #fbcfe8;
+            --color-primary-300: #f9a8d4;
+            --color-primary-400: #f472b6;
+            --color-primary-500: #ec4899;
+            --color-primary-600: #db2777;
+            --color-primary-700: #be185d;
+            --color-primary-800: #9d174d;
+            --color-primary-900: #831843;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary-400);
+            border-radius: 3px;
+        }
+
+        /* Animated gradient background */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--color-primary-900) 0%, var(--color-primary-700) 50%, var(--color-primary-500) 100%);
+        }
+
+        /* Card hover effect */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Theme dot active indicator */
+        .theme-dot.active {
+            ring: 2px;
+            transform: scale(1.3);
+        }
+
+        /* Pulse animation for active status */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse-dot {
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="px-3 py-3 lg:px-5 lg:pl-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center justify-start">
+                    <!-- Logo -->
+                    <a href="#" class="flex ml-2 md:mr-24">
+                        <svg class="w-8 h-8 mr-2 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Trading Bot</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <!-- Status Indicator -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30" id="statusBadge">
+                        <span class="w-2 h-2 rounded-full bg-green-500 pulse-dot" id="statusDot"></span>
+                        <span class="text-xs font-medium text-green-700 dark:text-green-400" id="statusText">Online</span>
+                    </div>
+                    <!-- Theme Toggle -->
+                    <button id="darkModeToggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+                        <svg id="sunIcon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"/>
+                        </svg>
+                        <svg id="moonIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                        </svg>
+                    </button>
+                    <!-- Theme Selector Button -->
+                    <button id="themeMenuBtn" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Theme Selector Panel -->
+    <div id="themePanel" class="fixed top-16 right-4 z-50 hidden w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4">
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Color Theme</h3>
+        <div class="grid grid-cols-4 gap-3 mb-4">
+            <button onclick="setTheme('blue')" class="theme-dot w-10 h-10 rounded-full bg-blue-500 hover:ring-4 hover:ring-blue-200 dark:hover:ring-blue-800 transition-all" title="Blue"></button>
+            <button onclick="setTheme('green')" class="theme-dot w-10 h-10 rounded-full bg-green-500 hover:ring-4 hover:ring-green-200 dark:hover:ring-green-800 transition-all" title="Green"></button>
+            <button onclick="setTheme('purple')" class="theme-dot w-10 h-10 rounded-full bg-purple-500 hover:ring-4 hover:ring-purple-200 dark:hover:ring-purple-800 transition-all" title="Purple"></button>
+            <button onclick="setTheme('red')" class="theme-dot w-10 h-10 rounded-full bg-red-500 hover:ring-4 hover:ring-red-200 dark:hover:ring-red-800 transition-all" title="Red"></button>
+            <button onclick="setTheme('orange')" class="theme-dot w-10 h-10 rounded-full bg-orange-500 hover:ring-4 hover:ring-orange-200 dark:hover:ring-orange-800 transition-all" title="Orange"></button>
+            <button onclick="setTheme('teal')" class="theme-dot w-10 h-10 rounded-full bg-teal-500 hover:ring-4 hover:ring-teal-200 dark:hover:ring-teal-800 transition-all" title="Teal"></button>
+            <button onclick="setTheme('pink')" class="theme-dot w-10 h-10 rounded-full bg-pink-500 hover:ring-4 hover:ring-pink-200 dark:hover:ring-pink-800 transition-all" title="Pink"></button>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Theme is saved automatically</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-8 px-4 max-w-7xl mx-auto">
+
+        <!-- Header Card -->
+        <div class="gradient-bg rounded-2xl p-6 mb-6 text-white shadow-lg">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold mb-1">Trading Bot Control</h1>
+                    <p class="text-white/80 text-sm">Manage your trading bot parameters and monitor performance</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-xs text-white/60">Balance</p>
+                        <p class="text-lg font-bold">$12,450.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Profit</p>
+                        <p class="text-lg font-bold text-green-500">+$2,340</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Orders</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">47</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Uptime</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">99.8%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Win Rate</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">73%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+            <!-- Bot Toggle -->
+            <button onclick="sendData('start_bot')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Power</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Turn bot on/off</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Order Amount -->
+            <button onclick="sendData('set_order_amount')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Order Amount</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Set trading volume</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Timeframes -->
+            <button onclick="sendData('set_timeframes')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Timeframes</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Configure intervals</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Coins -->
+            <button onclick="sendData('select_symbols')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Coins</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Select trading pairs</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Close Order -->
+            <button onclick="sendData('close_order')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Close Order</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Close active positions</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- PnL -->
+            <button onclick="sendData('show_pnl')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Profit / Loss</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">View PnL statistics</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Info -->
+            <button onclick="sendData('show_info')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Information</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Bot status & details</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Settings -->
+            <button onclick="sendData('settings')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Settings</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Advanced configuration</p>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Logs -->
+            <button onclick="sendData('show_logs')" class="group bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 card-hover transition-all text-left hover:border-primary-300 dark:hover:border-primary-600">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-900/50 transition-colors">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Logs</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">View activity history</p>
+                    </div>
+                </div>
+            </button>
+
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h2>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">BTC/USDT Long opened</span>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">ETH/USDT Short closed (+$124)</span>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Timeframe changed to 4H</span>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 hr ago</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">SOL/USDT Long closed (+$89)</span>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">3 hr ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Trading Bot v2.0 &bull; Powered by Flowbite</p>
+        </div>
+    </div>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script>
+        // ===== THEME MANAGEMENT =====
+
+        const themes = ['blue', 'green', 'purple', 'red', 'orange', 'teal', 'pink'];
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme === 'blue' ? '' : theme);
+            localStorage.setItem('selectedTheme', theme);
+            updateThemeDots(theme);
+        }
+
+        function updateThemeDots(activeTheme) {
+            document.querySelectorAll('.theme-dot').forEach(dot => {
+                dot.classList.remove('ring-4', 'ring-offset-2', 'scale-110');
+            });
+            const index = themes.indexOf(activeTheme);
+            if (index !== -1) {
+                const dots = document.querySelectorAll('.theme-dot');
+                if (dots[index]) {
+                    dots[index].classList.add('ring-4', 'ring-offset-2', 'scale-110');
+                }
+            }
+        }
+
+        // ===== DARK MODE =====
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('darkMode', 'light');
+                document.getElementById('sunIcon').classList.add('hidden');
+                document.getElementById('moonIcon').classList.remove('hidden');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('darkMode', 'dark');
+                document.getElementById('sunIcon').classList.remove('hidden');
+                document.getElementById('moonIcon').classList.add('hidden');
+            }
+        }
+
+        // ===== THEME PANEL TOGGLE =====
+
+        document.getElementById('themeMenuBtn').addEventListener('click', () => {
+            const panel = document.getElementById('themePanel');
+            panel.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('themePanel');
+            const btn = document.getElementById('themeMenuBtn');
+            if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
+        // ===== DARK MODE TOGGLE =====
+
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+        // ===== INITIALIZE =====
+
+        (function init() {
+            // Restore dark mode
+            const savedMode = localStorage.getItem('darkMode');
+            if (savedMode === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('sunIcon').classList.add('hidden');
+                document.getElementById('moonIcon').classList.remove('hidden');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.getElementById('sunIcon').classList.remove('hidden');
+                document.getElementById('moonIcon').classList.add('hidden');
+            }
+
+            // Restore theme
+            const savedTheme = localStorage.getItem('selectedTheme') || 'blue';
+            setTheme(savedTheme);
+
+            // Telegram WebApp theming
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+
+                // Auto-detect Telegram theme
+                if (Telegram.WebApp.colorScheme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'light');
+                }
+            }
+        })();
+
+        // ===== TELEGRAM WEBAPP INTEGRATION =====
+
+        function sendData(command) {
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.sendData(command);
+            } else {
+                console.log('Command sent:', command);
+                showToast(command);
+            }
+        }
+
+        // ===== TOAST NOTIFICATIONS =====
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-sm rounded-lg shadow-lg z-50 transition-opacity duration-300';
+            toast.textContent = `Command: ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
