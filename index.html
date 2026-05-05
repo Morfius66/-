@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07130d">
+  <title>Xservis — подключение</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07130d;
+      --panel: rgba(255, 255, 255, .08);
+      --panel-strong: rgba(255, 255, 255, .13);
+      --text: #f4fff8;
+      --muted: rgba(244, 255, 248, .68);
+      --green: #2df48a;
+      --green-dark: #10b967;
+      --yellow: #ffd166;
+      --red: #ff6b6b;
+      --line: rgba(255, 255, 255, .12);
+      --shadow: 0 24px 90px rgba(0, 0, 0, .35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(45, 244, 138, .28), transparent 34%),
+        radial-gradient(circle at 85% 25%, rgba(31, 178, 255, .18), transparent 34%),
+        linear-gradient(145deg, #041009 0%, #07130d 48%, #020604 100%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .app {
+      width: min(100%, 480px);
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .045));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border-radius: 18px;
+      background: linear-gradient(145deg, var(--green), #7cffc0);
+      color: #062012;
+      font-size: 27px;
+      font-weight: 900;
+      box-shadow: 0 14px 36px rgba(45, 244, 138, .28);
+    }
+
+    .brand-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 3px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 8vw, 44px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+
+    .hero {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .status-card {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: rgba(0, 0, 0, .18);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ring {
+      position: relative;
+      display: grid;
+      flex: 0 0 auto;
+      width: 58px;
+      height: 58px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(45, 244, 138, .14);
+      color: var(--green);
+    }
+
+    .ring::before {
+      position: absolute;
+      inset: 5px;
+      border: 2px solid currentColor;
+      border-radius: inherit;
+      content: "";
+      opacity: .75;
+    }
+
+    .ring.loading::before {
+      border-color: rgba(45, 244, 138, .18);
+      border-top-color: var(--green);
+      animation: spin 1s linear infinite;
+    }
+
+    .ring.error {
+      color: var(--red);
+      background: rgba(255, 107, 107, .13);
+    }
+
+    .ring.ready {
+      color: var(--yellow);
+      background: rgba(255, 209, 102, .13);
+    }
+
+    .ring svg {
+      width: 25px;
+      height: 25px;
+      z-index: 1;
+    }
+
+    .status-title {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .status-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .progress {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .09);
+    }
+
+    .progress-bar {
+      width: 16%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green-dark), var(--green));
+      transition: width .35s ease;
+    }
+
+    .primary {
+      display: flex;
+      width: 100%;
+      min-height: 64px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--green), #9affcf);
+      color: #052113;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -.01em;
+      box-shadow: 0 18px 44px rgba(45, 244, 138, .24);
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 24px 60px rgba(45, 244, 138, .32);
+    }
+
+    .primary:disabled {
+      cursor: wait;
+      opacity: .72;
+      transform: none;
+    }
+
+    .secondary-actions {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .secondary-actions.show {
+      display: grid;
+    }
+
+    .secondary {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .secondary:active,
+    .primary:active {
+      transform: translateY(1px);
+    }
+
+    .notice {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 209, 102, .24);
+      border-radius: 18px;
+      background: rgba(255, 209, 102, .08);
+      color: rgba(255, 247, 220, .88);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .notice.hidden {
+      display: none;
+    }
+
+    .fineprint {
+      margin: 18px 0 0;
+      color: rgba(244, 255, 248, .45);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="brand" aria-label="Xservis">
+      <div class="brand-mark">X</div>
+      <div class="brand-text">
+        <p class="eyebrow">Защищённое подключение</p>
+        <h1>Xservis</h1>
+      </div>
+    </section>
+
+    <p class="hero">Нажмите одну кнопку. Xservis проверит доступность сети, выберет подходящий профиль и откроет VPN-приложение для импорта.</p>
+
+    <section class="status-card" aria-live="polite">
+      <div class="status-row">
+        <div id="statusIcon" class="ring ready">
+          <svg id="statusSvg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3v18M4.5 8.5 12 3l7.5 5.5M5 12.5 12 18l7-5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <p id="statusTitle" class="status-title">Готово к подключению</p>
+          <p id="statusText" class="status-text">Проверка начнётся после нажатия кнопки.</p>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </section>
+
+    <button id="connectButton" class="primary" type="button">
+      <span>Подключиться</span>
+    </button>
+
+    <div id="manualActions" class="secondary-actions">
+      <button id="openV2RayTun" class="secondary" type="button">V2RayTun</button>
+      <button id="openHiddify" class="secondary" type="button">Hiddify</button>
+      <button id="openClash" class="secondary" type="button">Clash</button>
+      <button id="copySubscription" class="secondary" type="button">Скопировать</button>
+    </div>
+
+    <div id="notice" class="notice hidden"></div>
+    <p class="fineprint">Техническая проверка запускается только после нажатия «Подключиться».</p>
+  </main>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    const params = new URLSearchParams(window.location.search);
+    const defaultApiBase = "https://xservis.pro";
+    const profileName = "Xservis";
+    const apiBase = normalizeApiBase(params.get("api") || defaultApiBase);
+    const userId = params.get("user_id") || params.get("uid") || String(tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "");
+    const token = params.get("token") || params.get("t") || "";
+    const explicitSubscriptionUrl = params.get("sub_url") || params.get("subscription_url") || "";
+
+    const state = {
+      config: null,
+      scan: null
+    };
+
+    const elements = {
+      connectButton: document.getElementById("connectButton"),
+      copySubscription: document.getElementById("copySubscription"),
+      manualActions: document.getElementById("manualActions"),
+      notice: document.getElementById("notice"),
+      openClash: document.getElementById("openClash"),
+      openHiddify: document.getElementById("openHiddify"),
+      openV2RayTun: document.getElementById("openV2RayTun"),
+      progressBar: document.getElementById("progressBar"),
+      statusIcon: document.getElementById("statusIcon"),
+      statusSvg: document.getElementById("statusSvg"),
+      statusText: document.getElementById("statusText"),
+      statusTitle: document.getElementById("statusTitle")
+    };
+
+    const icons = {
+      ready: '<path d="M12 3v18M4.5 8.5 12 3l7.5 5.5M5 12.5 12 18l7-5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+      loading: '<path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+      success: '<path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+      error: '<path d="M12 8v5m0 3h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    };
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      if (tg.MainButton) {
+        tg.MainButton.setText("Подключиться");
+        tg.MainButton.onClick(startConnection);
+      }
+    }
+
+    elements.connectButton.addEventListener("click", startConnection);
+    elements.openV2RayTun.addEventListener("click", () => openAppLink(state.config.deepLinks.v2raytun));
+    elements.openHiddify.addEventListener("click", () => openAppLink(state.config.deepLinks.hiddify));
+    elements.openClash.addEventListener("click", () => openAppLink(state.config.deepLinks.clash));
+    elements.copySubscription.addEventListener("click", copySubscriptionUrl);
+
+    async function startConnection() {
+      if (elements.connectButton.disabled) {
+        return;
+      }
+
+      setBusy(true);
+      showNotice("");
+      setStatus("loading", "Проверяем сеть", "Подбираем рабочий способ подключения.", 28);
+
+      try {
+        const scan = await scanNetwork();
+        state.scan = scan;
+        setStatus("loading", "Генерируем конфигурацию", "Получаем профиль Xservis для вашей сети.", 66);
+
+        const config = await getConnectionConfig(scan);
+        state.config = config;
+
+        setStatus("success", "Подключение готово", "Профиль Xservis открыт в приложении. Если приложение не открылось, выберите его ниже.", 100);
+        elements.manualActions.classList.add("show");
+        openRecommendedClient(config);
+        sendTelemetry(scan, config);
+      } catch (error) {
+        const fallback = buildFallbackConfig();
+        state.config = fallback;
+        elements.manualActions.classList.add("show");
+        setStatus("error", "Нужны данные подписки", getErrorMessage(error), 100);
+        showNotice("Откройте эту страницу из бота Xservis или передайте user_id и token в ссылке WebApp. Кнопки ниже всё равно доступны, если подписка уже передана.");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function scanNetwork() {
+      const startedAt = new Date().toISOString();
+      const probes = await Promise.all([
+        timeFetch("xservis-api", apiBase + "/api/health", { mode: "no-cors" }),
+        timeFetch("xservis-subscription", buildSubscriptionUrl(), { method: "GET", mode: "no-cors" }),
+        timeFetch("internet-204", "https://www.gstatic.com/generate_204", { mode: "no-cors" }),
+        timeFetch("dns-google", "https://dns.google/resolve?name=xservis.pro&type=A", { headers: { accept: "application/dns-json" } })
+      ]);
+
+      const telemetry = {
+        app: "xservis-webapp",
+        version: "1.0.0",
+        startedAt,
+        finishedAt: new Date().toISOString(),
+        apiBase,
+        userId: userId || null,
+        telegramUserId: tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null,
+        page: {
+          href: scrubUrl(window.location.href),
+          referrer: document.referrer || null,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: navigator.language,
+          languages: navigator.languages || [],
+          platform: navigator.platform,
+          userAgent: navigator.userAgent,
+          cookieEnabled: navigator.cookieEnabled,
+          online: navigator.onLine,
+          screen: {
+            width: window.screen.width,
+            height: window.screen.height,
+            pixelRatio: window.devicePixelRatio || 1
+          },
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          }
+        },
+        device: {
+          hardwareConcurrency: navigator.hardwareConcurrency || null,
+          deviceMemory: navigator.deviceMemory || null,
+          maxTouchPoints: navigator.maxTouchPoints || 0
+        },
+        connection: getConnectionInfo(),
+        probes
+      };
+
+      telemetry.blockingMethod = detectBlockingMethod(telemetry);
+      telemetry.recommendedClient = chooseClient(telemetry);
+      return telemetry;
+    }
+
+    async function getConnectionConfig(scan) {
+      const payload = {
+        profileName,
+        scan,
+        telegramInitData: tg ? tg.initData : "",
+        userId: userId || null,
+        token: token || null
+      };
+
+      try {
+        const response = await fetch(apiBase + "/api/connect/auto-config", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+          credentials: "omit"
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return normalizeConfig(data, scan);
+        }
+      } catch (error) {
+        console.debug("auto-config unavailable", error);
+      }
+
+      if (!explicitSubscriptionUrl && (!userId || !token)) {
+        throw new Error("missing_subscription");
+      }
+
+      return buildFallbackConfig(scan);
+    }
+
+    async function sendTelemetry(scan, config) {
+      const payload = JSON.stringify({
+        type: "network_scan",
+        profileName,
+        scan,
+        config: {
+          blockingMethod: config.blockingMethod,
+          recommendedClient: config.recommendedClient,
+          subscriptionUrl: scrubUrl(config.subscriptionUrl)
+        }
+      });
+
+      const blob = new Blob([payload], { type: "application/json" });
+      if (navigator.sendBeacon && navigator.sendBeacon(apiBase + "/api/telemetry/network-scan", blob)) {
+        return;
+      }
+
+      try {
+        await fetch(apiBase + "/api/telemetry/network-scan", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: payload,
+          credentials: "omit",
+          keepalive: true
+        });
+      } catch (error) {
+        console.warn("telemetry unavailable", error);
+      }
+    }
+
+    function normalizeConfig(data, scan) {
+      const subscriptionUrl = data.subscriptionUrl || data.subscription_url || buildSubscriptionUrl();
+      const encoded = encodeURIComponent(subscriptionUrl);
+      const deepLinks = data.deepLinks || data.deep_links || {};
+      return {
+        profileName: data.profileName || data.profile_name || profileName,
+        subscriptionUrl,
+        blockingMethod: data.blockingMethod || data.blocking_method || scan.blockingMethod,
+        recommendedClient: data.recommendedClient || data.recommended_client || scan.recommendedClient,
+        deepLinks: {
+          v2raytun: deepLinks.v2raytun || "v2raytun://import/" + encoded + "?name=" + encodeURIComponent(profileName),
+          hiddify: deepLinks.hiddify || "hiddify://install-config?url=" + encoded + "&name=" + encodeURIComponent(profileName),
+          clash: deepLinks.clash || "clash://install-config?url=" + encoded + "&name=" + encodeURIComponent(profileName)
+        }
+      };
+    }
+
+    function buildFallbackConfig(scan) {
+      const subscriptionUrl = buildSubscriptionUrl();
+      const encoded = encodeURIComponent(subscriptionUrl);
+      return {
+        profileName,
+        subscriptionUrl,
+        blockingMethod: scan ? scan.blockingMethod : "unknown",
+        recommendedClient: scan ? scan.recommendedClient : chooseClient({ page: { userAgent: navigator.userAgent } }),
+        deepLinks: {
+          v2raytun: "v2raytun://import/" + encoded + "?name=" + encodeURIComponent(profileName),
+          hiddify: "hiddify://install-config?url=" + encoded + "&name=" + encodeURIComponent(profileName),
+          clash: "clash://install-config?url=" + encoded + "&name=" + encodeURIComponent(profileName)
+        }
+      };
+    }
+
+    function buildSubscriptionUrl() {
+      if (explicitSubscriptionUrl) {
+        return explicitSubscriptionUrl;
+      }
+
+      const id = encodeURIComponent(userId || "telegram");
+      const url = new URL("/api/sub/" + id, apiBase);
+      if (token) {
+        url.searchParams.set("token", token);
+      }
+      return url.toString();
+    }
+
+    async function timeFetch(name, url, options) {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 5500);
+      const started = performance.now();
+      try {
+        const response = await fetch(url, {
+          method: options.method || "GET",
+          mode: options.mode || "cors",
+          headers: options.headers || {},
+          cache: "no-store",
+          credentials: "omit",
+          signal: controller.signal
+        });
+        return {
+          name,
+          ok: response.ok || response.type === "opaque",
+          status: response.type === "opaque" ? 0 : response.status,
+          type: response.type,
+          latencyMs: Math.round(performance.now() - started)
+        };
+      } catch (error) {
+        return {
+          name,
+          ok: false,
+          error: error.name === "AbortError" ? "timeout" : "unreachable",
+          latencyMs: Math.round(performance.now() - started)
+        };
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    function detectBlockingMethod(scan) {
+      const byName = Object.fromEntries(scan.probes.map((probe) => [probe.name, probe]));
+      const ownReachable = Boolean((byName["xservis-api"] && byName["xservis-api"].ok) || (byName["xservis-subscription"] && byName["xservis-subscription"].ok));
+      const internetReachable = Boolean(byName["internet-204"] && byName["internet-204"].ok);
+      const dnsReachable = Boolean(byName["dns-google"] && byName["dns-google"].ok);
+
+      if (!navigator.onLine || (!internetReachable && !dnsReachable)) {
+        return "offline_or_network_firewall";
+      }
+
+      if (!ownReachable && dnsReachable && internetReachable) {
+        return "domain_or_tls_block";
+      }
+
+      if (!dnsReachable && internetReachable) {
+        return "dns_interference";
+      }
+
+      if (ownReachable && internetReachable) {
+        return "direct";
+      }
+
+      return "restricted_network";
+    }
+
+    function chooseClient(scan) {
+      const userAgent = (scan.page && scan.page.userAgent ? scan.page.userAgent : navigator.userAgent).toLowerCase();
+      if (userAgent.includes("android") || userAgent.includes("iphone") || userAgent.includes("ipad")) {
+        return "hiddify";
+      }
+      return "clash";
+    }
+
+    function openRecommendedClient(config) {
+      const link = config.deepLinks[config.recommendedClient] || config.deepLinks.hiddify || config.deepLinks.v2raytun || config.deepLinks.clash;
+      window.setTimeout(() => openAppLink(link), 250);
+    }
+
+    function openAppLink(link) {
+      if (!link) {
+        return;
+      }
+
+      if (tg && tg.openLink) {
+        tg.openLink(link);
+        return;
+      }
+
+      window.location.href = link;
+    }
+
+    async function copySubscriptionUrl() {
+      const subscriptionUrl = state.config ? state.config.subscriptionUrl : buildSubscriptionUrl();
+      try {
+        await navigator.clipboard.writeText(subscriptionUrl);
+        showNotice("Ссылка подписки скопирована.");
+      } catch (error) {
+        showNotice(subscriptionUrl);
+      }
+    }
+
+    function getConnectionInfo() {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (!connection) {
+        return null;
+      }
+
+      return {
+        effectiveType: connection.effectiveType || null,
+        downlink: connection.downlink || null,
+        rtt: connection.rtt || null,
+        saveData: Boolean(connection.saveData),
+        type: connection.type || null
+      };
+    }
+
+    function normalizeApiBase(value) {
+      try {
+        const url = new URL(value, window.location.origin);
+        if (url.protocol !== "https:" && url.protocol !== "http:") {
+          return defaultApiBase;
+        }
+        return url.origin;
+      } catch (error) {
+        return defaultApiBase;
+      }
+    }
+
+    function scrubUrl(value) {
+      try {
+        const url = new URL(value);
+        url.searchParams.delete("token");
+        url.searchParams.delete("t");
+        url.searchParams.delete("sub_url");
+        url.searchParams.delete("subscription_url");
+        return url.toString();
+      } catch (error) {
+        return value;
+      }
+    }
+
+    function getErrorMessage(error) {
+      if (error && error.message === "missing_subscription") {
+        return "Не найден токен подписки для автоматического импорта.";
+      }
+      return "Не удалось автоматически получить конфигурацию.";
+    }
+
+    function setBusy(isBusy) {
+      elements.connectButton.disabled = isBusy;
+      elements.connectButton.querySelector("span").textContent = isBusy ? "Подключаем..." : "Подключиться";
+      if (tg && tg.MainButton) {
+        if (isBusy) {
+          tg.MainButton.showProgress(false);
+          tg.MainButton.disable();
+        } else {
+          tg.MainButton.hideProgress();
+          tg.MainButton.enable();
+        }
+      }
+    }
+
+    function setStatus(type, title, text, progress) {
+      elements.statusIcon.className = "ring " + (type === "loading" ? "loading" : type === "error" ? "error" : type === "ready" ? "ready" : "");
+      elements.statusSvg.innerHTML = icons[type] || icons.ready;
+      elements.statusTitle.textContent = title;
+      elements.statusText.textContent = text;
+      elements.progressBar.style.width = Math.max(8, Math.min(100, progress)) + "%";
+    }
+
+    function showNotice(text) {
+      if (!text) {
+        elements.notice.classList.add("hidden");
+        elements.notice.textContent = "";
+        return;
+      }
+      elements.notice.textContent = text;
+      elements.notice.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
