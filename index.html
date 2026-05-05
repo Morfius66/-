@@ -388,11 +388,11 @@
 
         const config = await getConnectionConfig(scan);
         state.config = config;
-        await sendTelemetry(scan, config);
 
         setStatus("success", "Подключение готово", "Профиль Xservis открыт в приложении. Если приложение не открылось, выберите его ниже.", 100);
         elements.manualActions.classList.add("show");
         openRecommendedClient(config);
+        sendTelemetry(scan, config);
       } catch (error) {
         const fallback = buildFallbackConfig();
         state.config = fallback;
@@ -513,30 +513,7 @@
           keepalive: true
         });
       } catch (error) {
-        sendTelemetryToTelegram(scan, config);
-      }
-    }
-
-    function sendTelemetryToTelegram(scan, config) {
-      if (!tg || !tg.sendData) {
-        return;
-      }
-
-      const compact = JSON.stringify({
-        action: "xservis_network_scan",
-        method: config.blockingMethod,
-        client: config.recommendedClient,
-        userId: userId || null,
-        probes: scan.probes.map((probe) => ({
-          n: probe.name,
-          ok: probe.ok,
-          ms: probe.latencyMs || null,
-          e: probe.error || null
-        }))
-      });
-
-      if (compact.length < 3800) {
-        tg.sendData(compact);
+        console.warn("telemetry unavailable", error);
       }
     }
 
