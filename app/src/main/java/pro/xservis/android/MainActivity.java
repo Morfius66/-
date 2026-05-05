@@ -126,13 +126,13 @@ public class MainActivity extends Activity {
         progressBar.setProgress(16);
         root.addView(progressBar, topMargin(-1, dp(12), 18));
 
-        userIdField = input("user_id из Xservis бота");
+        userIdField = input("ID пользователя из бота Xservis");
         root.addView(userIdField, topMargin(-1, dp(52), 18));
 
-        tokenField = input("token подписки");
+        tokenField = input("Токен подписки");
         root.addView(tokenField, topMargin(-1, dp(52), 10));
 
-        subUrlField = input("или готовый sub_url");
+        subUrlField = input("Или готовая ссылка подписки");
         root.addView(subUrlField, topMargin(-1, dp(52), 10));
 
         connectButton = primaryButton("Подключиться");
