@@ -1,0 +1,61 @@
+# Xservis configuration example. Copy to config.yaml and edit.
+# All values can also be overridden via environment variables (XSERVIS_*).
+
+backend:
+  host: 0.0.0.0
+  port: 8080
+  public_url: https://xservis.pro
+  subscription_path: /api/sub
+  # HMAC secret used to sign subscription tokens.
+  token_secret: change-me-please
+
+database:
+  # SQLAlchemy URL. Default: SQLite file in CWD.
+  url: sqlite+aiosqlite:///./xservis.db
+
+bot:
+  # Telegram bot token from @BotFather.
+  token: ""
+  # Optional admin chat id for alerts from the watchdog.
+  admin_chat_id: 0
+
+watchdog:
+  enabled: true
+  # Interval between health-check rounds, seconds.
+  interval_seconds: 30
+  # TCP connect timeout in seconds.
+  tcp_timeout: 3.0
+  # Number of consecutive failures before a node is marked blocked.
+  failure_threshold: 3
+  # Number of consecutive successes before a blocked node is restored.
+  recovery_threshold: 2
+
+# Reality-based VLESS nodes that the subscription endpoint serves.
+servers:
+  - name: Xservis-DE-1
+    host: de1.xservis.pro
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000001
+    sni: www.cloudflare.com
+    public_key: REPLACE_WITH_REALITY_PUBLIC_KEY
+    short_id: REPLACE_WITH_REALITY_SHORT_ID
+    fingerprint: chrome
+    flow: xtls-rprx-vision
+  - name: Xservis-NL-1
+    host: nl1.xservis.pro
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000002
+    sni: www.microsoft.com
+    public_key: REPLACE_WITH_REALITY_PUBLIC_KEY
+    short_id: REPLACE_WITH_REALITY_SHORT_ID
+    fingerprint: chrome
+    flow: xtls-rprx-vision
+  - name: Xservis-FI-1
+    host: fi1.xservis.pro
+    port: 443
+    uuid: 00000000-0000-0000-0000-000000000003
+    sni: www.apple.com
+    public_key: REPLACE_WITH_REALITY_PUBLIC_KEY
+    short_id: REPLACE_WITH_REALITY_SHORT_ID
+    fingerprint: chrome
+    flow: xtls-rprx-vision
