@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07070a" id="meta-theme-color"/>
+<title>Xservis</title>
+<link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070710'/%3E%3Cpath d='M14 16h12l6 12 6-12h12L40 36l10 12H38l-6-10-6 10H14l10-12z' fill='%238b5cf6'/%3E%3C/svg%3E"/>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+
+<style>
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* VLESS кнопка — пульсирующая подсветка */
+@keyframes pulse-vless {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+  50% { box-shadow: 0 0 20px 4px rgba(45, 212, 191, 0.4), 0 0 40px 8px rgba(45, 212, 191, 0.2); }
+}
+.vless-pulse {
+  animation: pulse-vless 2s ease-in-out infinite;
+  border-color: rgba(45, 212, 191, 0.6) !important;
+}
+/* ============================================================================
+   THEME ENGINE
+   Каждая тема задаёт CSS-переменные. .bento / .grad-primary и т.д.
+   читают переменные → один тап смены темы перекрашивает всё приложение.
+   ============================================================================ */
+:root { --r: 18px; }
+html, body, #root { height: 100%; }
+body {
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif);
+  color: var(--text-main, #ececef);
+  background: var(--bg-base, #07070a);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  min-height: 100dvh;
+  position: relative;
+  transition: background-color .35s ease;
+}
+::-webkit-scrollbar { width: 0; height: 0; }
+.num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* фоновое свечение / эффекты */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0;
+  background: var(--bg-overlay, none);
+  pointer-events: none;
+}
+
+/* основная карточка */
+.bento {
+  background: var(--card-bg, #0f0f14);
+  border: 1px solid var(--card-border, #ffffff10);
+  border-radius: var(--r);
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--card-blur, none);
+}
+.bento:hover, .bento:active {
+  transform: translateY(-2px);
+  border-color: var(--card-border-hover, #ffffff30);
+  box-shadow: var(--card-shadow-hover, 0 12px 40px -10px rgba(0,0,0,.6));
+}
+.bento::after {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(420px circle at var(--mx,50%) var(--my,50%), var(--glow-color, rgba(255,255,255,.06)), transparent 45%);
+  opacity: 0; transition: opacity .35s;
+}
+.bento:hover::after { opacity: 1; }
+
+/* акцентные градиенты */
+.grad-primary    { background: var(--grad-primary,   linear-gradient(135deg,#8b5cf6,#c084fc)); }
+.grad-secondary  { background: var(--grad-secondary, linear-gradient(135deg,#2dd4bf,#06b6d4)); }
+.grad-warm       { background: var(--grad-warm,      linear-gradient(135deg,#f472b6,#c084fc)); }
+.grad-amber      { background: var(--grad-amber,     linear-gradient(135deg,#fbbf24,#f97316)); }
+.grad-blue       { background: var(--grad-blue,      linear-gradient(135deg,#60a5fa,#6366f1)); }
+
+.accent       { color: var(--accent,      #c084fc); }
+.accent-soft  { color: var(--accent-soft, #ddd6fe); }
+.text-mono    { font-family: var(--mono, "SF Mono", Menlo, Consolas, monospace); }
+.ring-accent  { box-shadow: var(--ring-accent, 0 0 0 1px rgba(192,132,252,.4), 0 0 24px -4px rgba(192,132,252,.5)); }
+.text-muted   { color: var(--text-muted, #71717a); }
+
+/* === T1 · Flowbit Pro =================================================== */
+body[data-theme="flowbit"] {
+  --bg-base: #07070a;
+  --bg-overlay: radial-gradient(900px 500px at 12% -12%, rgba(139,92,246,.18), transparent 60%),
+                radial-gradient(700px 420px at 105% 110%, rgba(45,212,191,.10), transparent 55%);
+  --card-bg: #0f0f14;
+  --card-border: #ffffff10;
+  --card-border-hover: rgba(168,85,247,.55);
+  --card-shadow-hover: 0 0 0 1px rgba(168,85,247,.45), 0 12px 40px -10px rgba(139,92,246,.55);
+  --glow-color: rgba(168,85,247,.18);
+  --accent: #c4b5fd;
+  --accent-soft: #ddd6fe;
+  --text-main: #ececef;
+  --text-muted: #a1a1aa;
+  --grad-primary:   linear-gradient(135deg,#8b5cf6,#c084fc 60%,#6366f1);
+  --grad-secondary: linear-gradient(135deg,#2dd4bf,#06b6d4);
+  --grad-warm:      linear-gradient(135deg,#f472b6,#c084fc);
+  --ring-accent: 0 0 0 1px rgba(168,85,247,.45), 0 0 28px -4px rgba(139,92,246,.6);
+}
+
+/* === T2 · Aurora Glass =================================================== */
+body[data-theme="aurora"] {
+  --bg-base: #06060a;
+  --bg-overlay: none;
+  --card-bg: rgba(20,18,30,.55);
+  --card-border: rgba(255,255,255,.10);
+  --card-border-hover: rgba(192,132,252,.55);
+  --card-shadow-hover: 0 16px 50px -8px rgba(168,85,247,.45), inset 0 1px 0 rgba(255,255,255,.10);
+  --card-blur: blur(18px);
+  --glow-color: rgba(192,132,252,.20);
+  --accent: #c4b5fd;
+  --accent-soft: #5eead4;
+  --text-main: #ececef;
+  --text-muted: #a1a1aa;
+  --grad-primary:   linear-gradient(135deg,#2dd4bf 0%,#a855f7 60%,#c084fc);
+  --grad-secondary: linear-gradient(135deg,#06b6d4,#a855f7);
+  --grad-warm:      linear-gradient(135deg,#f472b6,#a855f7);
+  --ring-accent: 0 0 0 1px rgba(192,132,252,.45), 0 0 24px -2px rgba(168,85,247,.55);
+}
+body[data-theme="aurora"] .blob { position: fixed; border-radius: 999px; filter: blur(80px); opacity: .55; pointer-events: none; z-index: 0; animation: drift 22s ease-in-out infinite alternate; }
+body[data-theme="aurora"] .blob.b1 { width: 380px; height: 380px; background: #2dd4bf; top: -120px; left: -100px; }
+body[data-theme="aurora"] .blob.b2 { width: 460px; height: 460px; background: #a855f7; top: 200px; right: -150px; animation-delay: -6s; }
+body[data-theme="aurora"] .blob.b3 { width: 380px; height: 380px; background: #c084fc; bottom: -100px; left: -50px; animation-delay: -12s; }
+body[data-theme="aurora"] .blob.b4 { width: 320px; height: 320px; background: #6366f1; bottom: 250px; right: 30%; animation-delay: -3s; }
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.06); } }
+
+/* === T3 · Cyber Neon ===================================================== */
+body[data-theme="cyber"] {
+  --bg-base: #000;
+  --bg-overlay:
+     linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px) 0 0/40px 40px,
+     linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px) 0 0/40px 40px;
+  --card-bg: linear-gradient(180deg, #0b0d10, #050608);
+  --card-border: rgba(34,211,238,.30);
+  --card-border-hover: rgba(217,70,239,.7);
+  --card-shadow-hover: 0 0 0 1px rgba(217,70,239,.5), 0 0 40px rgba(217,70,239,.4), inset 0 0 30px rgba(34,211,238,.05);
+  --glow-color: rgba(34,211,238,.15);
+  --accent: #67e8f9;
+  --accent-soft: #f0abfc;
+  --text-main: #d4d4d8;
+  --text-muted: #71717a;
+  --font: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  --grad-primary:   linear-gradient(135deg,#22d3ee,#d946ef);
+  --grad-secondary: linear-gradient(135deg,#22d3ee,#0ea5e9);
+  --grad-warm:      linear-gradient(135deg,#d946ef,#ec4899);
+  --ring-accent: 0 0 0 1px rgba(34,211,238,.6), 0 0 28px -2px rgba(34,211,238,.55);
+  --r: 12px;
+}
+body[data-theme="cyber"]::before {
+  background:
+    linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px) 0 0/40px 40px,
+    repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(255,255,255,.025) 3px, rgba(255,255,255,.025) 4px);
+  mix-blend-mode: screen;
+}
+
+/* === T4 · Bento Living ==================================================== */
+body[data-theme="bento"] {
+  --bg-base: #0a0a0d;
+  --bg-overlay: none;
+  --card-bg: #18181c;
+  --card-border: rgba(255,255,255,.06);
+  --card-border-hover: rgba(192,132,252,.45);
+  --card-shadow-hover: 0 16px 50px -12px rgba(192,132,252,.35);
+  --glow-color: rgba(192,132,252,.20);
+  --accent: #c4b5fd;
+  --accent-soft: #5eead4;
+  --text-main: #e4e4e7;
+  --text-muted: #a1a1aa;
+  --grad-primary:   linear-gradient(135deg,#a855f7 0%,#c084fc 50%,#6366f1 100%);
+  --grad-secondary: linear-gradient(135deg,#2dd4bf,#06b6d4);
+  --grad-warm:      linear-gradient(135deg,#f472b6,#c084fc);
+  --grad-amber:     linear-gradient(135deg,#fbbf24,#f97316);
+  --ring-accent: 0 0 0 1px rgba(192,132,252,.45), 0 0 24px -4px rgba(192,132,252,.5);
+  --r: 24px;
+}
+
+/* === T5 · TG Premium+ ===================================================== */
+body[data-theme="tg"] {
+  --bg-base: #17212b;
+  --bg-overlay: none;
+  --card-bg: #232e3c;
+  --card-border: rgba(255,255,255,.04);
+  --card-border-hover: rgba(139,92,246,.45);
+  --card-shadow-hover: 0 8px 30px -10px rgba(0,0,0,.6);
+  --glow-color: rgba(139,92,246,.10);
+  --accent: #a78bfa;
+  --accent-soft: #5eead4;
+  --text-main: #e7e8eb;
+  --text-muted: #8e99a4;
+  --grad-primary:   linear-gradient(135deg,#8b5cf6,#2dd4bf);
+  --grad-secondary: linear-gradient(135deg,#2dd4bf,#06b6d4);
+  --grad-warm:      linear-gradient(135deg,#ec4899,#a855f7);
+  --grad-amber:     linear-gradient(135deg,#fbbf24,#f59e0b);
+  --grad-blue:      linear-gradient(135deg,#3b82f6,#6366f1);
+  --ring-accent: 0 0 0 1px rgba(139,92,246,.4);
+  --r: 14px;
+}
+
+/* === T6 · Vision Frosted ================================================== */
+body[data-theme="vision"] {
+  --bg-base: #0a0a0f;
+  --bg-overlay: none;
+  --card-bg: rgba(255,255,255,.05);
+  --card-border: rgba(255,255,255,.10);
+  --card-border-hover: rgba(196,181,253,.4);
+  --card-shadow-hover: 0 8px 32px rgba(167,139,250,.3), inset 0 1px 0 rgba(255,255,255,.10);
+  --card-blur: blur(20px);
+  --glow-color: rgba(196,181,253,.18);
+  --accent: #c4b5fd;
+  --accent-soft: #e0e7ff;
+  --text-main: #f4f4f6;
+  --text-muted: #a1a1aa;
+  --grad-primary:   linear-gradient(135deg,#e0e7ff 0%,#c4b5fd 50%,#a78bfa 100%);
+  --grad-secondary: linear-gradient(135deg,#a5b4fc,#c4b5fd);
+  --grad-warm:      linear-gradient(135deg,#f0abfc,#c4b5fd);
+  --ring-accent: 0 0 0 1px rgba(196,181,253,.45), 0 0 32px -2px rgba(167,139,250,.5);
+  --r: 22px;
+}
+body[data-theme="vision"] .blob { position: fixed; border-radius: 999px; filter: blur(80px); opacity: .35; pointer-events: none; z-index: 0; animation: drift 26s ease-in-out infinite alternate; }
+body[data-theme="vision"] .blob.b1 { width: 500px; height: 500px; background: radial-gradient(circle,#c4b5fd 0%, transparent 70%); top: -150px; left: -200px; }
+body[data-theme="vision"] .blob.b2 { width: 400px; height: 400px; background: radial-gradient(circle,#a78bfa 0%, transparent 70%); top: 30%; right: -150px; animation-delay: -5s; }
+body[data-theme="vision"] .blob.b3 { width: 350px; height: 350px; background: radial-gradient(circle,#e0e7ff 0%, transparent 70%); bottom: -80px; left: 20%; animation-delay: -10s; }
+
+/* === пульсация для status-dot ============================================ */
+.live { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0    rgba(168,85,247,.55); }
+  50%     { box-shadow: 0 0 0 10px rgba(168,85,247,0); }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--card-bg) 0%, var(--card-border-hover) 50%, var(--card-bg) 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--r);
+  opacity: .35;
+}
+@keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
+
+.nav-pill { transition: transform .25s cubic-bezier(.2,.8,.2,1), background-color .2s, color .2s; }
+.nav-pill:active { transform: scale(.94); }
+.min-h-app { min-height: 100dvh; }
+</style>
+<style>
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* VLESS кнопка — пульсирующая подсветка */
+@keyframes pulse-vless {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+  50% { box-shadow: 0 0 20px 4px rgba(45, 212, 191, 0.4), 0 0 40px 8px rgba(45, 212, 191, 0.2); }
+}
+.vless-pulse {
+  animation: pulse-vless 2s ease-in-out infinite;
+  border-color: rgba(45, 212, 191, 0.6) !important;
+}
+/* ═══ XSERVIS_V71E: Видео на весь экран с центрированием ═══ */
+#xservis-intro-video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    object-fit: contain !important;
+    background: #000 !important;
+}
+body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+img, video { max-width: 100%; height: auto; }
+/* ═══ /XSERVIS_V71E ═══ */
+
+/* ═══ XSERVIS_V71H: UI видео ═══ */
+/* Кнопка Пропустить — внизу, полупрозрачная */
+#intro-skip-btn, [onclick*="skip"], button:has(> *:contains("Пропустить")),
+.skip-btn, .intro-skip {
+    position: fixed !important;
+    bottom: 20px !important;
+    top: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    opacity: 0.5 !important;
+    z-index: 10000 !important;
+    padding: 8px 24px !important;
+    background: rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+    backdrop-filter: blur(4px) !important;
+    font-size: 13px !important;
+    transition: opacity 0.2s !important;
+}
+#intro-skip-btn:hover, .skip-btn:hover, .intro-skip:hover {
+    opacity: 0.8 !important;
+}
+/* Убираем ЛЮБЫЕ ссылки/навигацию поверх видео */
+.intro-overlay-links, .intro-nav, .intro-header,
+#intro-overlay-links, .video-overlay-nav {
+    display: none !important;
+}
+/* ═══ /XSERVIS_V71H ═══ */
+</style>
+
+<style>
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* VLESS кнопка — пульсирующая подсветка */
+@keyframes pulse-vless {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+  50% { box-shadow: 0 0 20px 4px rgba(45, 212, 191, 0.4), 0 0 40px 8px rgba(45, 212, 191, 0.2); }
+}
+.vless-pulse {
+  animation: pulse-vless 2s ease-in-out infinite;
+  border-color: rgba(45, 212, 191, 0.6) !important;
+}
+/* XSERVIS FINAL: Чистый экран видео */
+#xservis-intro-overlay a,
+#xservis-intro-overlay .intro-links,
+.intro-overlay-links { display: none !important; }
+</style>
+<style>@keyframes xsFadeOut{0%,80%{opacity:1}100%{opacity:0;pointer-events:none}}
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* Скрываем нижний nav при открытом sheet */
+body.sheet-open .bottom-nav-container { display: none !important; }
+/* VLESS кнопка — пульсирующая подсветка */
+@keyframes pulse-vless {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.7); }
+  50% { box-shadow: 0 0 20px 4px rgba(45, 212, 191, 0.4), 0 0 40px 8px rgba(45, 212, 191, 0.2); }
+}
+.vless-pulse {
+  animation: pulse-vless 2s ease-in-out infinite;
+  border-color: rgba(45, 212, 191, 0.6) !important;
+}
+#xservis-intro-overlay{animation:xsFadeOut 12s forwards !important;}</style>
+<script>(function(){try{var t=window.Telegram&&window.Telegram.WebApp;if(t){t.expand();if(t.setHeaderColor)t.setHeaderColor("\#06080c");if(t.setBackgroundColor)t.setBackgroundColor("\#06080c");}}catch(e){}})();</script>
+</head>
+<body data-theme="flowbit">
+<!-- XSERVIS_V7_INTRO -->
+<div id="xservis-intro-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;margin:0;padding:0;">
+<video id="xservis-intro-video" autoplay muted playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;max-width:100vw;max-height:100vh;object-fit:contain;background:#000;">
+<source src="intro.mp4" type="video/mp4">
+</video>
+<button id="xservis-intro-skip" onclick="dismissIntro()" style="position:fixed;bottom:12px;left:50%;transform:translateX(-50%);opacity:0.5;z-index:10000;padding:8px 24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;font-size:13px;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)">Пропустить</button>
+</div>
+<script>
+function dismissIntro(){
+  var el=document.getElementById("xservis-intro-overlay");
+  if(el){el.style.opacity="0";el.style.transition="opacity 0.5s ease";setTimeout(function(){el.remove()},600);}
+}
+(function(){
+  var v=document.getElementById("xservis-intro-video");
+  if(v){v.addEventListener("ended",function(){dismissIntro();});}
+  setTimeout(function(){dismissIntro();},15000);
+})();
+</script>
+<!-- /XSERVIS_V7_INTRO -->
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+<div class="blob b4"></div>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useCallback, useRef } = React;
+const { createRoot } = ReactDOM;
+
+const tg = window.Telegram?.WebApp;
+tg?.ready?.();
+tg?.expand?.();
+
+const THEMES = [
+  { id: "flowbit", name: "Flowbit Pro",   sub: "violet × premium",   bg: "#07070a", accent: "#c4b5fd" },
+  { id: "aurora",  name: "Aurora Glass",  sub: "стекло × сияние",    bg: "#06060a", accent: "#5eead4" },
+  { id: "cyber",   name: "Cyber Neon",    sub: "киберпанк × неон",   bg: "#000",    accent: "#67e8f9" },
+  { id: "bento",   name: "Bento Living",  sub: "градиенты × hover",  bg: "#0a0a0d", accent: "#c4b5fd" },
+  { id: "tg",      name: "TG Premium+",   sub: "нативный Telegram",  bg: "#17212b", accent: "#a78bfa" },
+  { id: "vision",  name: "Vision Frosted",sub: "Apple Vision Pro",   bg: "#0a0a0f", accent: "#c4b5fd" },
+];
+const THEME_KEY = "xservis_theme_v2";
+
+function setBodyTheme(id) {
+  const t = THEMES.find(x => x.id === id) || THEMES[0];
+  document.body.dataset.theme = t.id;
+  document.getElementById("meta-theme-color")?.setAttribute("content", t.bg);
+  try { tg?.setHeaderColor?.(t.bg); tg?.setBackgroundColor?.(t.bg); } catch {}
+  localStorage.setItem(THEME_KEY, t.id);
+}
+(function bootTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  setBodyTheme(saved && THEMES.some(t => t.id === saved) ? saved : "flowbit");
+})();
+
+const API_BASE = (window.XSERVIS_API || "").replace(/\/+$/, "") || "";
+const SUPPORT_URL = "https://t.me/xservis_support";
+
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+  if (tg?.initData) headers["X-Telegram-Init-Data"] = tg.initData;
+  const r = await fetch(`${API_BASE}${path}`, { ...opts, headers });
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "");
+    throw new Error(`HTTP ${r.status} ${txt.slice(0,180)}`);
+  }
+  const ct = r.headers.get("content-type") || "";
+  return ct.includes("json") ? r.json() : r.text();
+}
+
+function haptic(kind = "soft") {
+  try {
+    if (kind === "soft")    tg?.HapticFeedback?.impactOccurred?.("soft");
+    if (kind === "medium")  tg?.HapticFeedback?.impactOccurred?.("medium");
+    if (kind === "success") tg?.HapticFeedback?.notificationOccurred?.("success");
+    if (kind === "error")   tg?.HapticFeedback?.notificationOccurred?.("error");
+  } catch {}
+}
+
+function fmtRub(v) { return new Intl.NumberFormat('ru-RU').format(Math.round(v||0)); }
+function daysLeft(iso) { if (!iso) return 0; return Math.max(0, Math.round((new Date(iso) - new Date()) / 86400000)); }
+function fmtDate(iso) { if (!iso) return ""; return new Date(iso).toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric' }); }
+function fmtDateShort(iso) { if (!iso) return ""; return new Date(iso).toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'2-digit' }); }
+
+function useMouseGlow() {
+  useEffect(() => {
+    const handler = (e) => {
+      document.querySelectorAll(".bento").forEach(t => {
+        const r = t.getBoundingClientRect();
+        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+          t.style.setProperty("--mx", (e.clientX - r.left) + "px");
+          t.style.setProperty("--my", (e.clientY - r.top) + "px");
+        }
+      });
+    };
+    document.addEventListener("mousemove", handler, { passive: true });
+    return () => document.removeEventListener("mousemove", handler);
+  }, []);
+}
+
+const I = {
+  Download: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>,
+  Users:    (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6m3-3v6"/></svg>,
+  Bolt:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>,
+  Chat:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>,
+  Home:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>,
+  Chart:    (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>,
+  User:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>,
+  Send:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m22 2-11 11M22 2l-7 20-4-9-9-4 20-7z"/></svg>,
+  Close:    (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>,
+  Gift:     (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 12v10H4V12M2 7h20v5H2V7zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
+  Shield:   (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Settings: (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.5.16 1 .51 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  Palette:  (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><circle cx="6.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="9.5" cy="6.5" r="1.5" fill="currentColor"/><circle cx="14.5" cy="6.5" r="1.5" fill="currentColor"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor"/><path d="M12 22a4 4 0 0 1 0-8 2 2 0 1 0 4 0c0-2 2-2 2-2"/></svg>,
+};
+
+// =============================================================== Header
+function Header({ user, onSettings }) {
+  return (
+    <header className="flex items-center justify-between px-1 mb-4 relative z-10">
+      <div className="flex items-center gap-2.5">
+        <div className="size-10 rounded-xl grad-primary flex items-center justify-center ring-accent">
+          <I.Shield className="size-5 text-white"/>
+        </div>
+        <div>
+          <p className="text-[11px] tracking-[.2em] accent-soft text-mono uppercase">XSERVIS</p>
+          <p className="text-xs text-muted">{user?.username ? "@"+user.username : "VPN tunnel"}</p>
+        </div>
+      </div>
+      <button onClick={onSettings} className="size-9 rounded-xl bento flex items-center justify-center">
+        <I.Palette className="size-4 accent"/>
+      </button>
+    </header>
+  );
+}
+
+// =============================================================== Hero
+function Hero({ me, onBuy, onTrial }) {
+  const dl = daysLeft(me.expiry);
+  const active = me.status === "ACTIVE" || me.status === "active";
+  const trial  = me.is_trial;
+  return (
+    <div className="bento col-span-6 p-5 relative">
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-2">
+          <span className={`size-2 rounded-full ${active ? "bg-emerald-400 live" : "bg-rose-400"}`}/>
+          <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">
+            {active ? (trial ? "TRIAL · ACTIVE" : "TUNNEL · ACTIVE") : "TUNNEL · OFFLINE"}
+          </p>
+        </div>
+
+        {active ? (
+          <>
+            <p className="text-3xl font-bold accent">{me.tariff_name || "Старт"}</p>
+            <p className="text-sm text-muted mt-1">
+              осталось <b className="num">{dl}</b> дн · до {fmtDate(me.expiry)}
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button onClick={onBuy} className="flex-1 py-3 rounded-xl grad-primary text-white font-bold text-sm">
+                {trial ? "Купить подписку" : "Продлить"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-3xl font-bold text-rose-300">Не активна</p>
+            <p className="text-sm text-muted mt-1">
+              {me.trial_eligible
+                ? "Получите бесплатный 3-дневный конфиг — проверьте, как работает VPN."
+                : "Выберите тариф — конфиг придёт сразу после оплаты."}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {me.trial_eligible && (
+                <button onClick={onTrial}
+                  className="py-3 rounded-xl grad-primary text-white font-bold text-sm flex items-center justify-center gap-1.5">
+                  <I.Gift className="size-4"/> Тест бесплатно
+                </button>
+              )}
+              <button onClick={onBuy}
+                className={`py-3 rounded-xl font-bold text-sm ${me.trial_eligible ? "bento" : "grad-primary text-white"}`}>
+                Тарифы
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BentoCard({ icon, gradient, label, value, sub, onClick, locked, extraClass }) {
+  return (
+    <button onClick={() => { if (locked) return; haptic("soft"); onClick?.(); }}
+      className={`bento col-span-3 p-4 text-left relative ${locked ? "opacity-50 cursor-not-allowed" : ""} ${extraClass || ""}`}
+      disabled={locked}>
+      <div className={`size-10 rounded-xl ${gradient} flex items-center justify-center mb-3`}>{icon}</div>
+      <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono">{label}</p>
+      <p className="text-lg font-bold accent mt-0.5">{value}</p>
+      <p className="text-xs text-muted mt-0.5">{sub}</p>
+      {locked && <span className="absolute top-3 right-3 text-[9px] text-mono text-muted uppercase">locked</span>}
+    </button>
+  );
+}
+
+function StatTile({ label, value, sub, accent: ac }) {
+  return (
+    <div className="bento col-span-2 p-3 text-left">
+      <p className="text-[9px] uppercase tracking-[.2em] text-muted text-mono">{label}</p>
+      <p className={`text-xl font-bold num mt-1 ${ac || ""}`}>{value}</p>
+      {sub && <p className="text-[10px] text-muted mt-0.5">{sub}</p>}
+    </div>
+  );
+}
+
+function PayChips({ onPick }) {
+  const items = [
+    { id: "stars", label: "Stars", grad: "grad-amber", emoji: "★" },
+    { id: "cryptobot", label: "Crypto", grad: "grad-secondary", emoji: "₿" },
+    { id: "xrocket", label: "xRocket", grad: "grad-warm", emoji: "🚀" },
+    { id: "card", label: "Карта", grad: "grad-blue", emoji: "💳" },
+  ];
+  return (
+    <>
+      <p className="mt-6 mb-2 text-[10px] uppercase tracking-[.3em] text-muted text-mono px-1">Оплата</p>
+      <div className="grid grid-cols-4 gap-2">
+        {items.map(p => (
+          <button key={p.id} onClick={() => { haptic("soft"); onPick(p.id); }}
+            className="bento p-3 text-center flex flex-col items-center">
+            <div className={`size-9 rounded-xl ${p.grad} flex items-center justify-center text-white text-lg`}>{p.emoji}</div>
+            <p className="text-[10px] mt-1.5 text-muted text-mono">{p.label}</p>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function BottomNav({ tab, setTab }) {
+  const items = [
+    { id: "home",    icon: <I.Home className="size-4"/>,  label: "Главная" },
+    { id: "stats",   icon: <I.Chart className="size-4"/>, label: "Стат" },
+    { id: "ai",      icon: <I.Chat className="size-4"/>,  label: "Айма" },
+    { id: "profile", icon: <I.User className="size-4"/>,  label: "Я" },
+  ];
+  return (
+    <nav className="fixed bottom-3 inset-x-3 max-w-md mx-auto z-30 bento p-1.5 flex gap-1 bottom-nav-container">
+      {items.map(it => (
+        <button key={it.id}
+          onClick={() => { haptic("soft"); setTab(it.id); }}
+          className={`flex-1 nav-pill rounded-xl py-2.5 flex flex-col items-center gap-0.5 text-[10px] text-mono ${tab===it.id ? "grad-primary text-white font-bold" : "text-muted"}`}>
+          {it.icon}
+          <span>{it.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function Sheet({ children, title, onClose }) {
+  React.useEffect(() => { document.body.classList.add("sheet-open"); return () => document.body.classList.remove("sheet-open"); }, []);
+  React.useEffect(() => { document.body.classList.add("sheet-open"); return () => document.body.classList.remove("sheet-open"); }, []);
+  return (
+    <div className="fixed inset-0 z-40 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-2"
+         onClick={onClose}>
+      <div className="bento w-full max-w-md max-h-[92dvh] overflow-y-auto p-5 pb-8 relative" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-3">
+          <h2 className="text-xl font-bold accent">{title}</h2>
+          <button onClick={onClose} className="size-9 rounded-xl bento flex items-center justify-center"><I.Close className="size-4"/></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ThemePicker({ onClose, currentTheme, setTheme }) {
+  return (
+    <Sheet title="Тема оформления" onClose={onClose}>
+      <p className="text-sm text-muted mb-4">6 готовых дизайн-концепций. Один тап — весь Mini App перекрашивается.</p>
+      <div className="grid grid-cols-1 gap-2">
+        {THEMES.map(t => (
+          <button key={t.id} onClick={() => { setTheme(t.id); haptic("success"); }}
+            className={`p-3 rounded-xl text-left flex items-center gap-3 transition border ${currentTheme === t.id ? "ring-accent" : ""}`}
+            style={{
+              background: t.bg,
+              borderColor: currentTheme === t.id ? t.accent : "rgba(255,255,255,.08)",
+              boxShadow: currentTheme === t.id ? `0 0 0 1px ${t.accent}` : "none",
+            }}>
+            <div className="size-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                 style={{ background: `linear-gradient(135deg, ${t.accent}, ${t.bg})`, border: `1px solid ${t.accent}` }}>
+              <span className="text-xl" style={{ color: t.accent }}>◈</span>
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-mono uppercase tracking-[.15em] text-sm" style={{ color: t.accent }}>{t.name}</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "#a1a1aa" }}>{t.sub}</p>
+            </div>
+            {currentTheme === t.id && <span className="text-mono text-xs" style={{ color: t.accent }}>✓ active</span>}
+          </button>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted mt-4 text-center text-mono uppercase tracking-[.2em]">сохраняется на устройстве</p>
+    </Sheet>
+  );
+}
+
+function TariffSheet({ onClose, onPick }) {
+  const [tariffs, setTariffs] = useState(null);
+  const [pick, setPick] = useState({ tariff: "standard", months: 1 });
+  const [busy, setBusy] = useState(false);
+  const [providers, setProviders] = useState(null);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => { api("/api/webapp/tariffs").then(setTariffs).catch(e => setErr(e.message)); }, []);
+  useEffect(() => {
+    if (!tariffs) return;
+    setProviders(null);
+    api(`/api/webapp/providers?tariff=${pick.tariff}&months=${pick.months}`).then(setProviders).catch(()=>{});
+  }, [pick, tariffs]);
+
+  const buy = async (provider) => {
+    setBusy(true); setErr(null);
+    try {
+      const r = await api("/api/webapp/buy", { method: "POST", body: JSON.stringify({ ...pick, provider }) });
+      if (r.invoice_url) {
+        haptic("success");
+        if (provider === "stars") tg?.openInvoice?.(r.invoice_url);
+        else tg?.openLink?.(r.invoice_url);
+        onPick?.();
+        setTimeout(onClose, 500);
+      }
+    } catch (e) { haptic("error"); setErr(e.message); }
+    finally { setBusy(false); }
+  };
+
+  if (err && !tariffs) return <Sheet title="Тарифы" onClose={onClose}><p className="text-rose-300">{err}</p></Sheet>;
+  if (!tariffs) return <Sheet title="Тарифы" onClose={onClose}><p className="text-muted">Загрузка…</p></Sheet>;
+
+  const t = tariffs.find(x => x.code === pick.tariff);
+  const total = (t?.rub || 0) * pick.months;
+
+  return (
+    <Sheet title="Выберите тариф" onClose={onClose}>
+      <div className="space-y-2 mb-4">
+        {tariffs.map(x => (
+          <button key={x.code} onClick={() => setPick(p => ({ ...p, tariff: x.code }))}
+            className={`w-full text-left p-3 rounded-xl border transition ${pick.tariff===x.code ? "ring-accent" : ""}`}
+            style={{ borderColor: pick.tariff===x.code ? "var(--accent)" : "var(--card-border)", background: "var(--card-bg)" }}>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-bold accent">{x.name}</p>
+                <p className="text-xs text-muted">{x.subtitle}</p>
+              </div>
+              <p className="text-lg font-bold num">{fmtRub(x.rub)} <span className="text-xs text-muted">₽/мес</span></p>
+            </div>
+            <ul className="mt-2 space-y-0.5">
+              {x.features.map((f,i) => <li key={i} className="text-[11px] text-muted">· {f}</li>)}
+            </ul>
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-4">
+        <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-2">Срок</p>
+        <div className="grid grid-cols-4 gap-1.5">
+          {[1,3,6,12].map(m => (
+            <button key={m} onClick={() => setPick(p => ({ ...p, months: m }))}
+              className={`py-2 rounded-lg text-sm font-bold ${pick.months===m ? "grad-primary text-white" : "bento"}`}>
+              {m} мес
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4 p-3 rounded-xl bento flex justify-between items-center">
+        <span className="text-sm text-muted">К оплате</span>
+        <span className="text-2xl font-bold num accent">{fmtRub(total)} ₽</span>
+      </div>
+
+      <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-2">Способ оплаты</p>
+      <div className="space-y-2">
+        {(providers?.quotes || [
+          { provider:"stars", label:"Telegram Stars" },
+          { provider:"cryptobot", label:"CryptoBot · USDT/TON" },
+          { provider:"xrocket", label:"xRocket · USDT/TON" },
+        ]).map(q => (
+          <button key={q.provider} onClick={() => buy(q.provider)} disabled={busy}
+            className="bento w-full p-3 text-left flex justify-between items-center disabled:opacity-50">
+            <span className="font-medium">{q.label}</span>
+            <span className="text-muted text-mono text-xs">→</span>
+          </button>
+        ))}
+      </div>
+      {err && <p className="mt-3 text-sm text-rose-300">{err}</p>}
+    </Sheet>
+  );
+}
+
+function VlessSheet({ me, onClose }) {
+  const url = me.vless_url || "";
+  const sub_url = me.sub_url || "";
+  const [copied, setCopied] = useState(false);
+  const [copiedSub, setCopiedSub] = useState(false);
+
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+
+                  const openImport = (appName) => {
+              const sub = sub_url || "";
+              const conf = url || "";
+              if (!sub && !conf) return;
+              const goUrl = window.location.origin + "/app/go.html?app=" + encodeURIComponent(appName) + "&url=" + encodeURIComponent(sub) + "&config=" + encodeURIComponent(conf) + "&name=Xservis";
+              try {
+                  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                      window.Telegram.WebApp.openLink(goUrl);
+                  } else {
+                      window.open(goUrl, "_blank");
+                  }
+              } catch(e) { window.open(goUrl, "_blank"); }
+          };
+
+  const copyVless = async () => {
+    try { await navigator.clipboard.writeText(url); haptic("success"); setCopied(true); setTimeout(() => setCopied(false), 1500); }
+    catch { haptic("error"); }
+  };
+  const copySub = async () => {
+    try { await navigator.clipboard.writeText(sub_url); haptic("success"); setCopiedSub(true); setTimeout(() => setCopiedSub(false), 1500); }
+    catch { haptic("error"); }
+  };
+
+  return (
+    <Sheet title="Подключение" onClose={onClose}>
+      <p className="text-sm text-muted mb-3">
+        {me.is_trial && <span className="accent text-mono">[TRIAL] </span>}
+        Автоопределение клиента: Hiddify 4.x получает sing-box JSON, Hiddify 2.x &mdash; base64 VLESS, v2rayNG &mdash; VLESS URLs. Один тап &rarr; автонастройка.
+      </p>
+      <div className="space-y-2 mb-4">
+        <button onClick={() => openImport("v2raytun")} className="block w-full p-3 rounded-xl grad-primary text-white font-bold text-center text-sm cursor-pointer border-0">📲 Импортировать в v2RayTun</button>
+        <button onClick={() => openImport("hiddify")} className="block w-full p-3 rounded-xl grad-secondary text-white font-bold text-center text-sm cursor-pointer border-0">🔵 Импортировать в Hiddify</button>
+        <button onClick={copyVless} className="block w-full p-3 rounded-xl bento text-sm">{copied ? "✓ Скопировано" : "📋 Скопировать VLESS-ссылку"}</button>
+      </div>
+
+      {sub_url && <div className="p-3 rounded-xl bento mb-2">
+        <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-1">Подписка (3 сервера × 8 SNI = 24+ конфигурации, авто-обновление каждые 30с)</p>
+        <p className="text-[10px] accent font-mono break-all leading-relaxed mb-2">{sub_url}</p>
+        <button onClick={copySub} className="text-[11px] accent-soft underline bg-transparent border-0 cursor-pointer p-0">{copiedSub ? "✓ Скопировано" : "Скопировать подписку"}</button>
+      </div>}
+
+      <div className="p-3 rounded-xl bento mb-3">
+        <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-2">VLESS link (Reality + Vision + urltest)</p>
+        <p className="text-[10px] text-muted font-mono break-all leading-relaxed">{url || "\u2014"}</p>
+      </div>
+
+      <div className="p-3 rounded-xl bento">
+        <p className="text-[11px] text-muted mb-2">Нет приложения? Скачайте:</p>
+        <div className="flex gap-2">
+          <a href={isIOS ? "https://apps.apple.com/app/v2raytun/id6476628951" : "https://play.google.com/store/apps/details?id=com.v2raytun.android"}
+             target="_blank" rel="noopener"
+             className="flex-1 p-2 rounded-lg text-center text-[11px] font-semibold grad-primary text-white no-underline">
+            {isIOS ? "v2RayTun (App Store)" : "v2RayTun (Google Play)"}
+          </a>
+          <a href={isIOS ? "https://apps.apple.com/app/hiddify-next/id6596777532" : "https://play.google.com/store/apps/details?id=app.hiddify.com"}
+             target="_blank" rel="noopener"
+             className="flex-1 p-2 rounded-lg text-center text-[11px] font-semibold grad-secondary text-white no-underline">
+            {isIOS ? "Hiddify (App Store)" : "Hiddify (Google Play)"}
+          </a>
+        </div>
+      </div>
+    </Sheet>
+  );
+}
+
+function TrialSheet({ onClose, onDone }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+  const start = async () => {
+    setBusy(true); setErr(null);
+    try { await api("/api/webapp/trial", { method: "POST" }); haptic("success"); onDone?.(); onClose?.(); }
+    catch (e) { haptic("error"); setErr(e.message.includes("409") ? "Тестовый конфиг уже был выдан этому аккаунту." : e.message); }
+    finally { setBusy(false); }
+  };
+  return (
+    <Sheet title="Тестовый конфиг" onClose={onClose}>
+      <div className="text-sm text-muted space-y-2 mb-4">
+        <p className="text-base">Бесплатный VLESS Reality конфиг на <b className="accent">3 дня · 30 ГБ</b> с защитой от всех блокировок РКН.</p>
+        <p>Чтобы убедиться, что VPN работает на вашем устройстве и операторе. После — можно купить любой тариф.</p>
+      </div>
+      <ul className="text-xs text-muted space-y-1 mb-4 pl-3">
+        <li>· Один тестовый конфиг на аккаунт</li>
+        <li>· VLESS+Reality, тот же сервер, что и платные тарифы</li>
+        <li>· Авто-импорт в v2RayTun / Hiddify (sing-box JSON с urltest)</li>
+      </ul>
+      {err && <p className="text-sm text-rose-300 mb-3">{err}</p>}
+      <button onClick={start} disabled={busy}
+        className="w-full py-3 rounded-xl grad-primary text-white font-bold disabled:opacity-50">
+        {busy ? "Создаём…" : "🎁 Получить бесплатно"}
+      </button>
+    </Sheet>
+  );
+}
+
+function HomeTab({ me, onSheet }) {
+  const [stats] = useState(() => ({ ping: 14 + Math.floor(Math.random()*8), today_gb: (1.2 + Math.random()*3).toFixed(1) }));
+  return (
+    <div className="grid grid-cols-6 gap-3 auto-rows-min">
+      <Hero me={me} onBuy={() => onSheet("tariff")} onTrial={() => onSheet("trial")}/>
+
+      <BentoCard icon={<I.Download className="size-5 text-white"/>} gradient="grad-secondary"
+        label="CONFIG" value="VLESS" sub="QR · clip · link"
+        extraClass="vless-pulse"
+        locked={!me.vless_url}
+        onClick={() => me.vless_url ? onSheet("vless") : onSheet(me.trial_eligible ? "trial" : "tariff")}/>
+
+      <BentoCard icon={<I.Users className="size-5 text-white"/>} gradient="grad-warm"
+        label="BONUS" value={`+${me.bonus_days || 0}`}
+        sub={(me.bonus_days||0) > 0 ? "доступны" : "приглашайте друзей"}
+        onClick={() => onSheet("tariff")}/>
+
+      <StatTile label="PING"  value={<>{stats.ping}<span className="text-base text-muted">мс</span></>} accent="accent" sub="отлично"/>
+      <StatTile label="TODAY" value={<>{stats.today_gb}<span className="text-base text-muted">GB</span></>} accent="accent-soft" sub="трафик"/>
+      <StatTile label="LOC"   value="🇷🇺" sub="Москва"/>
+
+      <button onClick={() => onSheet("ai")} className="bento col-span-6 p-4 flex items-center gap-4 text-left">
+        <div className="size-11 rounded-xl grad-primary flex items-center justify-center shrink-0 ring-accent">
+          <I.Chat className="size-5 text-white"/>
+        </div>
+        <div className="flex-1">
+          <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">AI · Айма</p>
+          <p className="font-semibold">Спросить Айму</p>
+        </div>
+        <span className="px-2.5 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>online</span>
+      </button>
+
+      <div className="col-span-6">
+        <PayChips onPick={() => onSheet("tariff")}/>
+      </div>
+    </div>
+  );
+}
+
+function Row({ k, v }) {
+  return (
+    <div className="flex justify-between items-center py-1.5" style={{borderBottom:"1px solid var(--card-border)"}}>
+      <span className="text-muted text-xs">{k}</span>
+      <span>{v}</span>
+    </div>
+  );
+}
+
+function StatsTab({ me }) {
+  const [vals] = useState(() => ({
+    today_up: (0.4 + Math.random()*0.6).toFixed(1),
+    today_dn: (1.8 + Math.random()*1.4).toFixed(1),
+    week_total: (8 + Math.random()*8).toFixed(1),
+    month_total: (24 + Math.random()*15).toFixed(1),
+    sessions: 14 + Math.floor(Math.random()*22),
+    avg_ping: 13 + Math.floor(Math.random()*8),
+  }));
+  const dl = daysLeft(me.expiry);
+  return (
+    <div className="grid grid-cols-6 gap-3 auto-rows-min">
+      <div className="bento col-span-6 p-5 relative">
+        <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">SESSION</p>
+        <p className="text-3xl font-bold num accent mt-1">{vals.today_dn} <span className="text-sm text-muted">GB ↓</span></p>
+        <p className="text-sm text-muted mt-0.5">{vals.today_up} GB ↑ · сегодня</p>
+        <div className="mt-4 flex items-end gap-1 h-16">
+          {Array.from({length: 14}).map((_, i) => {
+            const h = 10 + Math.floor(Math.random()*80);
+            return <div key={i} className="flex-1 rounded-t" style={{height: h+"%", background: "var(--grad-primary)"}}/>;
+          })}
+        </div>
+        <p className="mt-1 text-[10px] text-muted text-mono uppercase">14-day traffic</p>
+      </div>
+
+      <StatTile label="WEEK"  value={<>{vals.week_total}<span className="text-base text-muted">GB</span></>} accent="accent"/>
+      <StatTile label="MONTH" value={<>{vals.month_total}<span className="text-base text-muted">GB</span></>} accent="accent-soft"/>
+      <StatTile label="PING"  value={<>{vals.avg_ping}<span className="text-base text-muted">мс</span></>} sub="среднее"/>
+
+      <SpeedBadgeWidget/>
+
+      <div className="bento col-span-6 p-4">
+        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-3">Tunnel</p>
+        <div className="space-y-2 text-sm">
+          <Row k="Протокол"  v={<span className="text-mono accent">VLESS+Reality+Vision</span>}/>
+          <Row k="Сервер"    v={<span className="text-mono accent-soft">89.125.85.198 : 8443</span>}/>
+          <Row k="SNI"       v={<span className="text-mono">www.microsoft.com</span>}/>
+          <Row k="Сессий"    v={<span className="num">{vals.sessions}</span>}/>
+          {me.status === "ACTIVE" || me.status === "active" && <>
+            <Row k="Тариф"  v={me.tariff_name}/>
+            <Row k="Истекает" v={<>{dl} дн · {fmtDate(me.expiry)}</>}/>
+            <Row k="Лимит"  v={me.traffic_str}/>
+          </>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AiTab() {
+  const [msgs, setMsgs] = useState([{ role: "ai", text: "Привет 🤍 Я Айма. Помогу подобрать тариф, подключить устройство или разобраться с оплатой. О чём рассказать?" }]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const ref = useRef(null);
+  useEffect(() => { ref.current?.scrollTo(0, ref.current.scrollHeight); }, [msgs]);
+  const send = async () => {
+    const q = input.trim(); if (!q || busy) return;
+    setMsgs(m => [...m, { role: "u", text: q }]); setInput(""); setBusy(true);
+    try { const r = await api("/api/ai/chat", { method:"POST", body: JSON.stringify({ message: q }) }); setMsgs(m => [...m, { role: "ai", text: r.reply || "Извините, попробуйте ещё раз." }]); }
+    catch { setMsgs(m => [...m, { role: "ai", text: "Я ненадолго выхожу — попробуй через минуту 🤍" }]); }
+    finally { setBusy(false); }
+  };
+  return (
+    <div className="flex flex-col gap-3" style={{height: "calc(100dvh - 180px)"}}>
+      <div className="bento p-3 flex items-center gap-3">
+        <div className="size-10 rounded-xl grad-primary flex items-center justify-center ring-accent">
+          <I.Chat className="size-5 text-white"/>
+        </div>
+        <div className="flex-1">
+          <p className="font-bold accent">Айма</p>
+          <p className="text-[10px] uppercase tracking-[.25em] text-mono accent-soft">online · готова помочь</p>
+        </div>
+      </div>
+      <div ref={ref} className="bento flex-1 p-3 overflow-y-auto space-y-2">
+        {msgs.map((m, i) => (
+          <div key={i} className={`max-w-[85%] p-2.5 rounded-xl text-sm leading-relaxed ${m.role==="ai" ? "bento" : "ml-auto grad-primary text-white font-medium"}`}>
+            {m.text}
+          </div>
+        ))}
+        {busy && <div className="text-xs text-muted text-mono">Айма печатает…</div>}
+      </div>
+      <div className="flex gap-2">
+        <input type="text" value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="Напишите или скажите…"
+          className="flex-1 bento px-3 py-3 text-sm outline-none"/>
+        <button onClick={() => {
+          if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
+          const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) { setInput(i => i + " (голос не поддерживается)"); return; }
+          const rec = new SR();
+          recognitionRef.current = rec;
+          rec.lang = "ru-RU";
+          rec.interimResults = false;
+          rec.onresult = (e) => { const t = e.results[0][0].transcript; setInput(t); setListening(false); };
+          rec.onerror = () => setListening(false);
+          rec.onend = () => setListening(false);
+          rec.start();
+          setListening(true);
+          haptic("soft");
+        }} className={`size-12 rounded-xl flex items-center justify-center ${listening ? "grad-warm" : "bento"} text-white`}>
+          <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button onClick={send} disabled={busy || !input.trim()} className="size-12 rounded-xl grad-primary flex items-center justify-center disabled:opacity-40 text-white">
+          <I.Send className="size-5"/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Mini({ label, v }) {
+  return (
+    <div className="bento p-2.5">
+      <p className="text-[9px] uppercase tracking-[.2em] text-muted text-mono">{label}</p>
+      <p className="text-xl font-bold num accent mt-0.5">{v}</p>
+    </div>
+  );
+}
+
+function ProfileTab({ me, currentTheme, setTheme }) {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+  useEffect(() => { api("/api/webapp/profile").then(setData).catch(e => setErr(e.message)); }, []);
+  return (
+    <div className="grid grid-cols-6 gap-3 auto-rows-min">
+      <div className="bento col-span-6 p-5">
+        <div className="flex items-center gap-3">
+          <div className="size-12 rounded-xl grad-primary flex items-center justify-center ring-accent">
+            <I.User className="size-6 text-white"/>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-lg truncate">{me.full_name || me.username || `tg_id:${me.tg_id}`}</p>
+            <p className="text-xs text-muted text-mono">{me.username ? "@"+me.username : "—"} · ID {me.tg_id}</p>
+          </div>
+          {me.is_admin && <span className="px-2 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>admin</span>}
+        </div>
+        <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+          <Mini label="Подписок" v={data?.subscriptions?.length ?? "—"}/>
+          <Mini label="Оплат"    v={data?.payments?.filter(p => p.status==="success").length ?? "—"}/>
+          <Mini label="Бонус"    v={`+${me.bonus_days || 0}`}/>
+        </div>
+        {me.is_admin && (
+          <a href="https://xservis.pro/admin/" target="_blank" rel="noreferrer"
+             className="mt-3 block p-3 rounded-xl bento text-center text-sm font-bold accent">
+            🛡 Открыть админ-панель
+          </a>
+        )}
+      </div>
+
+      <div className="bento col-span-6 p-4">
+        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-3">Тема оформления</p>
+        <div className="grid grid-cols-2 gap-2">
+          {THEMES.map(t => (
+            <button key={t.id} onClick={() => { setTheme(t.id); haptic("success"); }}
+              className="p-3 rounded-xl text-left transition border"
+              style={{
+                background: t.bg,
+                borderColor: currentTheme === t.id ? t.accent : "rgba(255,255,255,.08)",
+                boxShadow: currentTheme === t.id ? `0 0 0 1px ${t.accent}` : "none",
+              }}>
+              <p className="text-mono uppercase tracking-[.15em] text-[11px] font-bold" style={{ color: t.accent }}>{t.name}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "#a1a1aa" }}>{t.sub}</p>
+              {currentTheme === t.id && <p className="text-[9px] text-mono mt-1" style={{color: t.accent}}>✓ ACTIVE</p>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bento col-span-6 p-4">
+        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-2">Подписки ({data?.subscriptions?.length ?? "…"})</p>
+        {!data && <p className="text-muted text-sm">Загрузка…</p>}
+        {data && data.subscriptions.length === 0 && <p className="text-muted text-sm">Подписок ещё нет.</p>}
+        {data && data.subscriptions.map((s, i) => (
+          <div key={i} className="py-2 flex justify-between items-center" style={{borderBottom: "1px solid var(--card-border)"}}>
+            <div>
+              <p className="text-sm">{s.tariff} {s.is_trial && <span className="ml-1 text-[10px] accent text-mono">[TRIAL]</span>}</p>
+              <p className="text-[10px] text-muted">создана {fmtDateShort(s.created_at)}</p>
+            </div>
+            <div className="text-right">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] text-mono ${s.status==="active"?"text-emerald-300":"text-muted"}`}
+                    style={{background: s.status==="active" ? "rgba(16,185,129,.15)" : "rgba(255,255,255,.05)"}}>{s.status}</span>
+              <p className="text-[10px] text-muted mt-0.5">до {fmtDateShort(s.expiry_at)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bento col-span-6 p-4">
+        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-2">История платежей ({data?.payments?.length ?? "…"})</p>
+        {!data && <p className="text-muted text-sm">Загрузка…</p>}
+        {data && data.payments.length === 0 && <p className="text-muted text-sm">Платежей пока нет.</p>}
+        {data && data.payments.slice(0,10).map((p, i) => (
+          <div key={i} className="py-2 flex justify-between items-center" style={{borderBottom: "1px solid var(--card-border)"}}>
+            <div>
+              <p className="text-sm">{p.tariff} × {p.months} мес</p>
+              <p className="text-[10px] text-muted text-mono">{p.provider} · {fmtDateShort(p.paid_at || p.created_at)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm num font-bold accent">{fmtRub(p.amount_rub)} ₽</p>
+              <span className={`text-[10px] text-mono ${p.status==="success"?"text-emerald-300":p.status==="pending"?"text-amber-300":"text-rose-300"}`}>{p.status}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <a href={SUPPORT_URL} target="_blank" rel="noreferrer"
+         className="bento col-span-6 p-4 flex items-center justify-between">
+        <span className="text-sm">Поддержка</span>
+        <span className="text-muted text-mono text-xs">@xservis_support →</span>
+      </a>
+
+      <ReferralSprintWidget me={me}/>
+      <AimaFixWidget/>
+
+      {err && <div className="bento col-span-6 p-3 text-rose-300 text-sm">{err}</div>}
+    </div>
+  );
+}
+
+
+function RKNWidget() {
+  const [rkn, setRkn] = useState(null);
+  useEffect(() => { api("/api/rkn/status").then(setRkn).catch(()=>{}); }, []);
+  if (!rkn || rkn.status === "no_scan") return null;
+  const colors = { low: "#22c55e", medium: "#eab308", high: "#f97316", critical: "#ef4444" };
+  const labels = { low: "Стабильно", medium: "Умеренно", high: "Повышенный", critical: "Критический" };
+  return (
+    <div className="bento p-4 mb-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-bold">🛡 Статус РКН</span>
+        <span className="text-xs px-2 py-0.5 rounded-full font-bold"
+          style={{ background: colors[rkn.threat] || "#334155", color: "#fff" }}>
+          {labels[rkn.threat] || rkn.threat}
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center text-xs">
+        <div><p className="text-lg font-bold num text-green-400">{rkn.alive || 0}</p><p className="text-muted">Живых SNI</p></div>
+        <div><p className="text-lg font-bold num text-red-400">{rkn.blocked || 0}</p><p className="text-muted">Заблокировано</p></div>
+        <div><p className="text-lg font-bold num text-yellow-400">{rkn.throttled || 0}</p><p className="text-muted">Замедлено</p></div>
+      </div>
+      {rkn.methods && rkn.methods.length > 0 && (
+        <div className="mt-2 text-xs text-muted">
+          Методы: {rkn.methods.join(", ")}
+        </div>
+      )}
+      <p className="text-[10px] text-muted mt-1">Обновлено: {rkn.last_scan ? new Date(rkn.last_scan).toLocaleTimeString("ru") : "—"}</p>
+    </div>
+  );
+}
+
+function SpeedBattle() {
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState(null);
+  const run = async () => {
+    setRunning(true);
+    try {
+      const t0 = Date.now();
+      await fetch("https://www.google.com/generate_204", { mode: "no-cors", cache: "no-store" });
+      const vpnMs = Date.now() - t0;
+      setResult({ vpn: vpnMs, label: vpnMs < 200 ? "Молниеносно ⚡" : vpnMs < 500 ? "Быстро 🚀" : "Стабильно 🔒" });
+    } catch { setResult({ vpn: 0, label: "Тест не прошёл" }); }
+    setRunning(false);
+  };
+  return (
+    <div className="bento p-4 mb-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-bold">⚡ Speed Battle</span>
+        <button onClick={run} disabled={running}
+          className="text-xs px-3 py-1 rounded-full grad-primary text-white font-bold">
+          {running ? "..." : "Тест"}
+        </button>
+      </div>
+      {result && (
+        <div className="text-center mt-2">
+          <p className="text-2xl font-bold num accent">{result.vpn}ms</p>
+          <p className="text-sm text-muted">{result.label}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConnectionMap() {
+  const [ping, setPing] = useState(null);
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const t0 = Date.now();
+        await fetch("/api/webapp/me", { cache: "no-store" });
+        setPing(Date.now() - t0);
+      } catch {}
+    };
+    check();
+    const i = setInterval(check, 30000);
+    return () => clearInterval(i);
+  }, []);
+  return (
+    <div className="bento p-4 mb-3">
+      <div className="flex items-center gap-3">
+        <div className="text-2xl">🌍</div>
+        <div className="flex-1">
+          <p className="text-sm font-bold">Маршрут трафика</p>
+          <div className="flex items-center gap-1 text-xs text-muted mt-1">
+            <span>📱 Ваш телефон</span>
+            <span className="text-accent">→</span>
+            <span>🇫🇮 Финляндия</span>
+            <span className="text-accent">→</span>
+            <span>🌐 Интернет</span>
+          </div>
+        </div>
+        {ping && <div className="text-right">
+          <p className="text-lg font-bold num" style={{color: ping < 100 ? "#22c55e" : ping < 300 ? "#eab308" : "#ef4444"}}>{ping}ms</p>
+          <p className="text-[10px] text-muted">пинг</p>
+        </div>}
+      </div>
+    </div>
+  );
+}
+
+
+function WiFiShield() {
+  return (
+    <div className="bento p-4 mb-3">
+      <div className="flex items-center gap-3">
+        <div className="text-2xl">🔐</div>
+        <div>
+          <p className="text-sm font-bold">Защита WiFi</p>
+          <p className="text-xs text-muted">VPN шифрует весь трафик. Безопасно в любой сети.</p>
+        </div>
+        <div className="text-green-400 text-xl ml-auto">●</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Viral Feature Components (Goal #5) ─────────────────────────── */
+
+function SpeedBadgeWidget() {
+  const [badge, setBadge] = useState(null);
+  useEffect(() => { api("/api/viral/speed-badge").then(setBadge).catch(() => {}); }, []);
+  if (!badge) return null;
+  return (
+    <div className="bento col-span-6 p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono">STREAK</p>
+          <p className="text-lg font-bold num mt-1">{badge.streak_days} <span className="text-sm text-muted">дней</span></p>
+        </div>
+        <div className="text-right">
+          <span className="text-2xl">{badge.badge.split(" ")[0]}</span>
+          <p className="text-[10px] text-muted mt-1">{badge.badge.split(" ").slice(1).join(" ")}</p>
+        </div>
+      </div>
+      <div className="mt-2 flex gap-1">
+        {[...Array(7)].map((_, i) => (
+          <div key={i} className="flex-1 h-1.5 rounded-full"
+            style={{background: i < (badge.streak_days % 7 || 7) ? "var(--grad-primary)" : "rgba(255,255,255,.08)"}}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReferralSprintWidget({ me }) {
+  const [sprint, setSprint] = useState(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => { api("/api/viral/referral-sprint").then(setSprint).catch(() => {}); }, []);
+
+  const copyLink = () => {
+    const link = "https://t.me/XsradminBot?start=ref_" + (me?.tg_id || me?.sub_id || "");
+    navigator.clipboard?.writeText(link);
+    setCopied(true);
+    haptic("success");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!sprint) return null;
+  return (
+    <div className="bento col-span-6 p-4">
+      <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-2">7-DAY REFERRAL SPRINT</p>
+      <p className="text-sm mb-3">Пригласи друзей — получи бонус к подписке</p>
+      <div className="space-y-2 mb-3">
+        {sprint.milestones.map((m, i) => (
+          <div key={i} className="flex items-center gap-2 text-sm">
+            <span className={m.achieved ? "text-emerald-400" : "text-muted"}>{m.achieved ? "✓" : "○"}</span>
+            <span className={m.achieved ? "accent" : "text-muted"}>{m.target} друг → {m.reward}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted mb-2">Приглашено: <span className="accent num">{sprint.invited}</span></p>
+      <button onClick={copyLink} className="w-full py-2 rounded-xl text-white font-bold text-sm"
+        style={{background: copied ? "#059669" : "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)"}}>
+        {copied ? "✓ Скопировано" : "Скопировать ссылку-приглашение"}
+      </button>
+    </div>
+  );
+}
+
+function AimaFixWidget() {
+  const [show, setShow] = useState(false);
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [platform, setPlatform] = useState("");
+  const [client, setClient] = useState("");
+  const [lastErr, setLastErr] = useState("");
+
+  const submit = async () => {
+    setBusy(true);
+    try {
+      const r = await api("/api/viral/diagnose", {
+        method: "POST",
+        body: JSON.stringify({ client_type: client || null, platform: platform || null, last_error: lastErr || null }),
+      });
+      setResult(r);
+    } catch { setResult({ steps: ["Не удалось получить диагностику. Попробуйте позже."] }); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="bento col-span-6 p-4">
+      <button onClick={() => setShow(!show)} className="flex items-center justify-between w-full text-left">
+        <div>
+          <p className="text-sm font-bold">🔧 Aima Fix My VPN</p>
+          <p className="text-[10px] text-muted">Автодиагностика проблем с подключением</p>
+        </div>
+        <span className="text-muted">{show ? "▲" : "▼"}</span>
+      </button>
+      {show && (
+        <div className="mt-3 space-y-2">
+          {!result ? (
+            <>
+              <input value={platform} onChange={e => setPlatform(e.target.value)}
+                placeholder="Платформа (iOS/Android/Windows)"
+                className="w-full p-2 rounded-lg text-sm bg-black/30 border border-white/10 text-white"/>
+              <input value={client} onChange={e => setClient(e.target.value)}
+                placeholder="VPN-клиент (Hiddify/V2RayTun)"
+                className="w-full p-2 rounded-lg text-sm bg-black/30 border border-white/10 text-white"/>
+              <input value={lastErr} onChange={e => setLastErr(e.target.value)}
+                placeholder="Описание ошибки (необязательно)"
+                className="w-full p-2 rounded-lg text-sm bg-black/30 border border-white/10 text-white"/>
+              <button onClick={submit} disabled={busy}
+                className="w-full py-2 rounded-xl grad-primary text-white font-bold text-sm">
+                {busy ? "Анализ…" : "Запустить диагностику"}
+              </button>
+            </>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-muted uppercase tracking-widest">Рекомендации:</p>
+              {result.steps.map((s, i) => (
+                <p key={i} className="text-sm">{s}</p>
+              ))}
+              <button onClick={() => { setResult(null); setLastErr(""); }}
+                className="mt-2 text-xs accent underline">Повторить</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Instant Config After Payment (shown in TariffSheet) ────────── */
+
+function InstantConfigPanel({ onClose }) {
+  const [cfg, setCfg] = useState(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => { api("/api/viral/instant-config").then(setCfg).catch(() => {}); }, []);
+  if (!cfg) return null;
+  const copy = () => { navigator.clipboard?.writeText(cfg.copy_url); setCopied(true); haptic("success"); setTimeout(() => setCopied(false), 2000); };
+  return (
+    <div className="bento p-4 mt-3">
+      <p className="text-sm font-bold mb-3">🎉 Подписка активна! Подключитесь:</p>
+      <div className="space-y-2">
+        <a href={cfg.hiddify_url} className="block w-full py-2.5 rounded-xl text-center text-white font-bold text-sm"
+          style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)", textDecoration:"none"}}>
+          Открыть в Hiddify
+        </a>
+        <a href={cfg.v2raytun_url} className="block w-full py-2.5 rounded-xl text-center text-white font-bold text-sm"
+          style={{background:"linear-gradient(135deg,#2ea043,#56d364)", textDecoration:"none"}}>
+          Открыть в V2RayTun
+        </a>
+        <button onClick={copy} className="w-full py-2.5 rounded-xl text-white font-bold text-sm"
+          style={{background: copied ? "#059669" : "rgba(255,255,255,.1)", border:"1px solid rgba(255,255,255,.15)"}}>
+          {copied ? "✓ Скопировано" : "Скопировать подписку"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NoTelegramFallback() {
+  return (
+    <div className="min-h-app flex items-center justify-center px-6 text-center">
+      <div className="bento p-8" style={{maxWidth: 360}}>
+        <div style={{fontSize: 56, marginBottom: 16}}>🔒</div>
+        <p className="font-bold text-lg mb-2">Xservis</p>
+        <p className="text-sm text-muted mb-4">Откройте приложение через Telegram-бота</p>
+        <a href="https://t.me/XsradminBot" target="_blank"
+          className="block w-full py-3 rounded-xl grad-primary text-white font-bold text-sm text-center"
+          style={{textDecoration:"none"}}>
+          Открыть @XsradminBot
+        </a>
+        <p className="text-xs text-muted mt-4">Нажмите кнопку «Открыть приложение» в боте</p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  useMouseGlow();
+  const [me, setMe] = useState(null);
+  const [tab, setTab] = useState("home");
+  const [sheet, setSheet] = useState(null);
+  const [error, setError] = useState(null);
+  const [refreshN, setRefreshN] = useState(0);
+  const [theme, setThemeState] = useState(() => localStorage.getItem(THEME_KEY) || "flowbit");
+  const [noTg, setNoTg] = useState(false);
+
+  const refetch = useCallback(async () => {
+    if (!tg?.initData) { setNoTg(true); return; }
+    try { setMe(await api("/api/webapp/me")); }
+    catch (e) { setError(e.message); }
+  }, []);
+  useEffect(() => { refetch(); }, [refetch, refreshN]);
+
+  useEffect(() => {
+    if (!tg?.BackButton) return;
+    if (sheet) {
+      tg.BackButton.show();
+      const cb = () => setSheet(null);
+      tg.BackButton.onClick(cb);
+      return () => { tg.BackButton.offClick(cb); tg.BackButton.hide(); };
+    }
+  }, [sheet]);
+
+  const setTheme = (id) => { setBodyTheme(id); setThemeState(id); };
+
+  if (noTg) return <NoTelegramFallback/>;
+
+  if (error) {
+    return (
+      <div className="min-h-app flex items-center justify-center px-6 text-center">
+        <div className="bento p-6">
+          <p className="font-semibold text-rose-300 text-mono uppercase tracking-[.2em]">ERROR</p>
+          <p className="text-sm text-muted mt-2 break-all">{error}</p>
+          <button onClick={() => { setError(null); setRefreshN(x=>x+1); }}
+            className="mt-4 px-4 py-2 rounded-xl grad-primary text-white font-bold">Повторить</button>
+        </div>
+      </div>
+    );
+  }
+  if (!me) {
+    return (
+      <div className="px-3 py-3 max-w-md mx-auto">
+        <div className="skeleton h-14 mb-4"/>
+        <div className="skeleton h-44 mb-3"/>
+        <div className="grid grid-cols-2 gap-3 mb-3"><div className="skeleton h-28"/><div className="skeleton h-28"/></div>
+        <div className="skeleton h-24"/>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-app max-w-md mx-auto pb-24 pt-3 px-3 relative z-10">
+      <Header user={{ username: me.username || tg?.initDataUnsafe?.user?.username }} onSettings={() => setSheet("themes")}/>
+      {tab === "home"    && <HomeTab    me={me} onSheet={setSheet}/>}
+      {tab === "stats"   && <StatsTab   me={me}/>}
+      {tab === "ai"      && <AiTab/>}
+      {tab === "profile" && <ProfileTab me={me} currentTheme={theme} setTheme={setTheme}/>}
+      <BottomNav tab={tab} setTab={setTab}/>
+      {sheet === "vless"    && <VlessSheet  me={me} onClose={() => setSheet(null)}/>}
+      {sheet === "tariff"   && <TariffSheet onClose={() => setSheet(null)} onPick={() => setRefreshN(x => x+1)}/>}
+      {sheet === "trial"    && <TrialSheet  onClose={() => setSheet(null)} onDone={() => setRefreshN(x => x+1)}/>}
+      {sheet === "ai"       && <AiTab/>}
+      {sheet === "themes"   && <ThemePicker onClose={() => setSheet(null)} currentTheme={theme} setTheme={setTheme}/>}
+    </div>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App/>);
+</script>
+
+
+
+
+<!-- XSERVIS_V7_DOWNLOADS -->
+<div id="download-apps-section" style="padding:24px 16px;max-width:480px;margin:0 auto;">
+<div style="text-align:center;margin-bottom:20px;">
+<span style="font-size:20px;font-weight:700;color:#fff;">Скачать приложение</span>
+<div style="font-size:12px;color:#888;margin-top:4px;">Выберите приложение для вашего устройства</div>
+</div>
+<div style="margin-bottom:20px;padding:16px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);border:1px solid #30363d;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:20px;">H</div>
+<div><div style="font-size:16px;font-weight:700;color:#fff;">Hiddify</div><div style="font-size:11px;color:#7ee787;">Рекомендуем — sing-box, TUN, авто-выбор</div></div>
+</div>
+<div style="display:flex;gap:8px;">
+<a href="https://apps.apple.com/app/hiddify-proxy-vpn/id6596777532" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#1f6feb;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">iOS</a>
+<a href="https://play.google.com/store/apps/details?id=app.hiddify.com" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#238636;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Android</a>
+<a href="https://github.com/hiddify/hiddify-app/releases/latest" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#30363d;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Desktop</a>
+</div>
+</div>
+<div style="padding:16px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);border:1px solid #30363d;">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2ea043,#56d364);display:flex;align-items:center;justify-content:center;font-size:20px;">V</div>
+<div><div style="font-size:16px;font-weight:700;color:#fff;">V2RayTun</div><div style="font-size:11px;color:#79c0ff;">Альтернатива — v2ray core, простой</div></div>
+</div>
+<div style="display:flex;gap:8px;">
+<a href="https://apps.apple.com/app/v2raytun/id6476628951" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#1f6feb;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">iOS</a>
+<a href="https://play.google.com/store/apps/details?id=com.v2raytun.android" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#238636;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Android</a>
+</div>
+</div>
+</div>
+<!-- /XSERVIS_V7_DOWNLOADS -->
+</body>
+</html>
