@@ -290,9 +290,10 @@ img, video { max-width: 100%; height: auto; }
     position: fixed !important;
     bottom: 20px !important;
     top: auto !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    opacity: 0.5 !important;
+    right: 16px !important;
+    left: auto !important;
+    transform: none !important;
+    opacity: 0.3 !important;
     z-index: 10000 !important;
     padding: 8px 24px !important;
     background: rgba(255,255,255,0.15) !important;
@@ -356,7 +357,7 @@ body.sheet-open .bottom-nav-container { display: none !important; }
 <video id="xservis-intro-video" autoplay muted playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;max-width:100vw;max-height:100vh;object-fit:contain;background:#000;">
 <source src="intro.mp4" type="video/mp4">
 </video>
-<button id="xservis-intro-skip" onclick="dismissIntro()" style="position:fixed;bottom:12px;left:50%;transform:translateX(-50%);opacity:0.5;z-index:10000;padding:8px 24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;font-size:13px;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)">Пропустить</button>
+<button id="xservis-intro-skip" onclick="dismissIntro()" style="position:fixed;bottom:12px;right:16px;left:auto;transform:none;opacity:0.3;z-index:10000;padding:8px 24px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;font-size:13px;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)">Пропустить</button>
 </div>
 <script>
 function dismissIntro(){
