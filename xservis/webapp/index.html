@@ -939,7 +939,7 @@ function StatsTab({ me }) {
           <Row k="Сервер"    v={<span className="text-mono accent-soft">89.125.85.198 : 8443</span>}/>
           <Row k="SNI"       v={<span className="text-mono">www.microsoft.com</span>}/>
           <Row k="Сессий"    v={<span className="num">{vals.sessions}</span>}/>
-          {me.status === "ACTIVE" || me.status === "active" && <>
+          {(me.status === "ACTIVE" || me.status === "active") && <>
             <Row k="Тариф"  v={me.tariff_name}/>
             <Row k="Истекает" v={<>{dl} дн · {fmtDate(me.expiry)}</>}/>
             <Row k="Лимит"  v={me.traffic_str}/>

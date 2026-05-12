@@ -40,7 +40,7 @@ die() { printf "${C_R}[X]${C_N} %s\n" "$*" >&2; exit 1; }
 NEW_TOKEN=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --token) NEW_TOKEN="$2"; shift 2;;
+        --token) [ -z "${2:-}" ] && die "--token requires an argument"; NEW_TOKEN="$2"; shift 2;;
         *) shift;;
     esac
 done
