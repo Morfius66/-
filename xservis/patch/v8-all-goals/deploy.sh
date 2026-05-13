@@ -76,7 +76,8 @@ ok "Diagnostics at /root/xservis_full_diagnostics.sh"
 if [ -n "$NEW_TOKEN" ] && [ -f "$DOC/.env" ]; then
     say "Updating BOT_TOKEN in .env"
     if grep -q "^BOT_TOKEN=" "$DOC/.env"; then
-        sed -i "s|^BOT_TOKEN=.*|BOT_TOKEN=$NEW_TOKEN|" "$DOC/.env"
+        ESCAPED_TOKEN=$(printf '%s' "$NEW_TOKEN" | sed 's/[|&\/]/\\&/g')
+        sed -i "s|^BOT_TOKEN=.*|BOT_TOKEN=$ESCAPED_TOKEN|" "$DOC/.env"
     else
         echo "BOT_TOKEN=$NEW_TOKEN" >> "$DOC/.env"
     fi

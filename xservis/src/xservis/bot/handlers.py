@@ -135,12 +135,21 @@ async def _upsert_user(
             )
             session.add(db_user)
 
-            # credit referrer with +1 count
+            # credit referrer — milestone-based rewards
             if referred_by is not None:
                 referrer = await session.get(User, referred_by)
                 if referrer is not None:
-                    referrer.referral_count += 1
-                    referrer.referral_bonus_days += 7
+                    old_count = referrer.referral_count
+                    referrer.referral_count = old_count + 1
+                    new_count = referrer.referral_count
+                    _MILESTONES = [
+                        {"target": 1, "days": 1},
+                        {"target": 3, "days": 3},
+                        {"target": 5, "days": 7},
+                    ]
+                    for m in _MILESTONES:
+                        if old_count < m["target"] <= new_count:
+                            referrer.referral_bonus_days += m["days"]
 
             await session.commit()
             log.info("New user saved: id=%d username=%s", user.id, user.username)
