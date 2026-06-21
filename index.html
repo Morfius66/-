@@ -394,7 +394,7 @@
         openRecommendedClient(config);
         sendTelemetry(scan, config);
       } catch (error) {
-        const fallback = buildFallbackConfig();
+        const fallback = buildFallbackConfig(state.scan);
         state.config = fallback;
         elements.manualActions.classList.add("show");
         setStatus("error", "Нужны данные подписки", getErrorMessage(error), 100);
