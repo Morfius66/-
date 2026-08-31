@@ -1,0 +1,15 @@
+# Local environment overrides
+.env
+
+# WireGuard secrets
+config/wg0.conf
+config/*.key
+config/private
+config/peer_configs/
+
+# Docker data volumes
+data/
+
+# Python cache
+__pycache__/
+*.pyc
