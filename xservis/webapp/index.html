@@ -479,7 +479,7 @@ function Header({ user, onSettings }) {
         </div>
         <div>
           <p className="text-[11px] tracking-[.2em] accent-soft text-mono uppercase">XSERVIS</p>
-          <p className="text-xs text-muted">{user?.username ? "@"+user.username : "VPN tunnel"}</p>
+          <p className="text-xs text-muted">{user?.username ? "@"+user.username : "VPN-туннель"}</p>
         </div>
       </div>
       <button onClick={onSettings} className="size-9 rounded-xl bento flex items-center justify-center">
@@ -500,7 +500,7 @@ function Hero({ me, onBuy, onTrial }) {
         <div className="flex items-center gap-2 mb-2">
           <span className={`size-2 rounded-full ${active ? "bg-emerald-400 live" : "bg-rose-400"}`}/>
           <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">
-            {active ? (trial ? "TRIAL · ACTIVE" : "TUNNEL · ACTIVE") : "TUNNEL · OFFLINE"}
+            {active ? (trial ? "ПРОБНЫЙ ПЕРИОД · АКТИВЕН" : "ТУННЕЛЬ · АКТИВЕН") : "ТУННЕЛЬ · НЕ ПОДКЛЮЧЁН"}
           </p>
         </div>
 
@@ -552,7 +552,7 @@ function BentoCard({ icon, gradient, label, value, sub, onClick, locked, extraCl
       <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono">{label}</p>
       <p className="text-lg font-bold accent mt-0.5">{value}</p>
       <p className="text-xs text-muted mt-0.5">{sub}</p>
-      {locked && <span className="absolute top-3 right-3 text-[9px] text-mono text-muted uppercase">locked</span>}
+      {locked && <span className="absolute top-3 right-3 text-[9px] text-mono text-muted uppercase">недоступно</span>}
     </button>
   );
 }
@@ -570,7 +570,7 @@ function StatTile({ label, value, sub, accent: ac }) {
 function PayChips({ onPick }) {
   const items = [
     { id: "stars", label: "Stars", grad: "grad-amber", emoji: "★" },
-    { id: "cryptobot", label: "Crypto", grad: "grad-secondary", emoji: "₿" },
+    { id: "cryptobot", label: "Криптовалюта", grad: "grad-secondary", emoji: "₿" },
     { id: "xrocket", label: "xRocket", grad: "grad-warm", emoji: "🚀" },
     { id: "card", label: "Карта", grad: "grad-blue", emoji: "💳" },
   ];
@@ -649,7 +649,7 @@ function ThemePicker({ onClose, currentTheme, setTheme }) {
               <p className="font-bold text-mono uppercase tracking-[.15em] text-sm" style={{ color: t.accent }}>{t.name}</p>
               <p className="text-[11px] mt-0.5" style={{ color: "#a1a1aa" }}>{t.sub}</p>
             </div>
-            {currentTheme === t.id && <span className="text-mono text-xs" style={{ color: t.accent }}>✓ active</span>}
+            {currentTheme === t.id && <span className="text-mono text-xs" style={{ color: t.accent }}>✓ выбрана</span>}
           </button>
         ))}
       </div>
@@ -785,7 +785,7 @@ function VlessSheet({ me, onClose }) {
   return (
     <Sheet title="Подключение" onClose={onClose}>
       <p className="text-sm text-muted mb-3">
-        {me.is_trial && <span className="accent text-mono">[TRIAL] </span>}
+        {me.is_trial && <span className="accent text-mono">[ПРОБНЫЙ ПЕРИОД] </span>}
         Автоопределение клиента: Hiddify 4.x получает sing-box JSON, Hiddify 2.x &mdash; base64 VLESS, v2rayNG &mdash; VLESS URLs. Один тап &rarr; автонастройка.
       </p>
       <div className="space-y-2 mb-4">
@@ -801,7 +801,7 @@ function VlessSheet({ me, onClose }) {
       </div>}
 
       <div className="p-3 rounded-xl bento mb-3">
-        <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-2">VLESS link (Reality + Vision + urltest)</p>
+        <p className="text-[10px] uppercase tracking-[.2em] text-muted text-mono mb-2">Ссылка VLESS (Reality + Vision + urltest)</p>
         <p className="text-[10px] text-muted font-mono break-all leading-relaxed">{url || "\u2014"}</p>
       </div>
 
@@ -860,29 +860,29 @@ function HomeTab({ me, onSheet }) {
       <Hero me={me} onBuy={() => onSheet("tariff")} onTrial={() => onSheet("trial")}/>
 
       <BentoCard icon={<I.Download className="size-5 text-white"/>} gradient="grad-secondary"
-        label="CONFIG" value="VLESS" sub="QR · clip · link"
+        label="КОНФИГУРАЦИЯ" value="VLESS" sub="QR · буфер · ссылка"
         extraClass="vless-pulse"
         locked={!me.vless_url}
         onClick={() => me.vless_url ? onSheet("vless") : onSheet(me.trial_eligible ? "trial" : "tariff")}/>
 
       <BentoCard icon={<I.Users className="size-5 text-white"/>} gradient="grad-warm"
-        label="BONUS" value={`+${me.bonus_days || 0}`}
+        label="БОНУС" value={`+${me.bonus_days || 0}`}
         sub={(me.bonus_days||0) > 0 ? "доступны" : "приглашайте друзей"}
         onClick={() => onSheet("tariff")}/>
 
-      <StatTile label="PING"  value={<>{stats.ping}<span className="text-base text-muted">мс</span></>} accent="accent" sub="отлично"/>
-      <StatTile label="TODAY" value={<>{stats.today_gb}<span className="text-base text-muted">GB</span></>} accent="accent-soft" sub="трафик"/>
-      <StatTile label="LOC"   value="🇷🇺" sub="Москва"/>
+      <StatTile label="ЗАДЕРЖКА"  value={<>{stats.ping}<span className="text-base text-muted">мс</span></>} accent="accent" sub="отлично"/>
+      <StatTile label="СЕГОДНЯ" value={<>{stats.today_gb}<span className="text-base text-muted">ГБ</span></>} accent="accent-soft" sub="трафик"/>
+      <StatTile label="ЛОКАЦИЯ"   value="🇷🇺" sub="Москва"/>
 
       <button onClick={() => onSheet("ai")} className="bento col-span-6 p-4 flex items-center gap-4 text-left">
         <div className="size-11 rounded-xl grad-primary flex items-center justify-center shrink-0 ring-accent">
           <I.Chat className="size-5 text-white"/>
         </div>
         <div className="flex-1">
-          <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">AI · Айма</p>
+          <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">ИИ · Айма</p>
           <p className="font-semibold">Спросить Айму</p>
         </div>
-        <span className="px-2.5 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>online</span>
+        <span className="px-2.5 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>в сети</span>
       </button>
 
       <div className="col-span-6">
@@ -914,26 +914,26 @@ function StatsTab({ me }) {
   return (
     <div className="grid grid-cols-6 gap-3 auto-rows-min">
       <div className="bento col-span-6 p-5 relative">
-        <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">SESSION</p>
-        <p className="text-3xl font-bold num accent mt-1">{vals.today_dn} <span className="text-sm text-muted">GB ↓</span></p>
-        <p className="text-sm text-muted mt-0.5">{vals.today_up} GB ↑ · сегодня</p>
+        <p className="text-[10px] uppercase tracking-[.25em] accent-soft text-mono">СЕССИЯ</p>
+        <p className="text-3xl font-bold num accent mt-1">{vals.today_dn} <span className="text-sm text-muted">ГБ ↓</span></p>
+        <p className="text-sm text-muted mt-0.5">{vals.today_up} ГБ ↑ · сегодня</p>
         <div className="mt-4 flex items-end gap-1 h-16">
           {Array.from({length: 14}).map((_, i) => {
             const h = 10 + Math.floor(Math.random()*80);
             return <div key={i} className="flex-1 rounded-t" style={{height: h+"%", background: "var(--grad-primary)"}}/>;
           })}
         </div>
-        <p className="mt-1 text-[10px] text-muted text-mono uppercase">14-day traffic</p>
+        <p className="mt-1 text-[10px] text-muted text-mono uppercase">Трафик за 14 дней</p>
       </div>
 
-      <StatTile label="WEEK"  value={<>{vals.week_total}<span className="text-base text-muted">GB</span></>} accent="accent"/>
-      <StatTile label="MONTH" value={<>{vals.month_total}<span className="text-base text-muted">GB</span></>} accent="accent-soft"/>
-      <StatTile label="PING"  value={<>{vals.avg_ping}<span className="text-base text-muted">мс</span></>} sub="среднее"/>
+      <StatTile label="НЕДЕЛЯ"  value={<>{vals.week_total}<span className="text-base text-muted">ГБ</span></>} accent="accent"/>
+      <StatTile label="МЕСЯЦ" value={<>{vals.month_total}<span className="text-base text-muted">ГБ</span></>} accent="accent-soft"/>
+      <StatTile label="ЗАДЕРЖКА"  value={<>{vals.avg_ping}<span className="text-base text-muted">мс</span></>} sub="среднее"/>
 
       <SpeedBadgeWidget/>
 
       <div className="bento col-span-6 p-4">
-        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-3">Tunnel</p>
+        <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-3">Туннель</p>
         <div className="space-y-2 text-sm">
           <Row k="Протокол"  v={<span className="text-mono accent">VLESS+Reality+Vision</span>}/>
           <Row k="Сервер"    v={<span className="text-mono accent-soft">89.125.85.198 : 8443</span>}/>
@@ -973,7 +973,7 @@ function AiTab() {
         </div>
         <div className="flex-1">
           <p className="font-bold accent">Айма</p>
-          <p className="text-[10px] uppercase tracking-[.25em] text-mono accent-soft">online · готова помочь</p>
+          <p className="text-[10px] uppercase tracking-[.25em] text-mono accent-soft">в сети · готова помочь</p>
         </div>
       </div>
       <div ref={ref} className="bento flex-1 p-3 overflow-y-auto space-y-2">
@@ -1038,7 +1038,7 @@ function ProfileTab({ me, currentTheme, setTheme }) {
             <p className="font-bold text-lg truncate">{me.full_name || me.username || `tg_id:${me.tg_id}`}</p>
             <p className="text-xs text-muted text-mono">{me.username ? "@"+me.username : "—"} · ID {me.tg_id}</p>
           </div>
-          {me.is_admin && <span className="px-2 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>admin</span>}
+          {me.is_admin && <span className="px-2 py-1 rounded-full text-[10px] text-mono uppercase ring-accent" style={{color:"var(--accent)"}}>администратор</span>}
         </div>
         <div className="grid grid-cols-3 gap-2 mt-4 text-center">
           <Mini label="Подписок" v={data?.subscriptions?.length ?? "—"}/>
@@ -1066,7 +1066,7 @@ function ProfileTab({ me, currentTheme, setTheme }) {
               }}>
               <p className="text-mono uppercase tracking-[.15em] text-[11px] font-bold" style={{ color: t.accent }}>{t.name}</p>
               <p className="text-[10px] mt-0.5" style={{ color: "#a1a1aa" }}>{t.sub}</p>
-              {currentTheme === t.id && <p className="text-[9px] text-mono mt-1" style={{color: t.accent}}>✓ ACTIVE</p>}
+              {currentTheme === t.id && <p className="text-[9px] text-mono mt-1" style={{color: t.accent}}>✓ ВЫБРАНА</p>}
             </button>
           ))}
         </div>
@@ -1079,7 +1079,7 @@ function ProfileTab({ me, currentTheme, setTheme }) {
         {data && data.subscriptions.map((s, i) => (
           <div key={i} className="py-2 flex justify-between items-center" style={{borderBottom: "1px solid var(--card-border)"}}>
             <div>
-              <p className="text-sm">{s.tariff} {s.is_trial && <span className="ml-1 text-[10px] accent text-mono">[TRIAL]</span>}</p>
+              <p className="text-sm">{s.tariff} {s.is_trial && <span className="ml-1 text-[10px] accent text-mono">[ПРОБНЫЙ ПЕРИОД]</span>}</p>
               <p className="text-[10px] text-muted">создана {fmtDateShort(s.created_at)}</p>
             </div>
             <div className="text-right">
@@ -1170,7 +1170,7 @@ function SpeedBattle() {
   return (
     <div className="bento p-4 mb-3">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-bold">⚡ Speed Battle</span>
+        <span className="text-sm font-bold">⚡ Соревнование скорости</span>
         <button onClick={run} disabled={running}
           className="text-xs px-3 py-1 rounded-full grad-primary text-white font-bold">
           {running ? "..." : "Тест"}
@@ -1249,7 +1249,7 @@ function SpeedBadgeWidget() {
     <div className="bento col-span-6 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono">STREAK</p>
+          <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono">ДНЕЙ ПОДРЯД</p>
           <p className="text-lg font-bold num mt-1">{badge.streak_days} <span className="text-sm text-muted">дней</span></p>
         </div>
         <div className="text-right">
@@ -1283,7 +1283,7 @@ function ReferralSprintWidget({ me }) {
   if (!sprint) return null;
   return (
     <div className="bento col-span-6 p-4">
-      <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-2">7-DAY REFERRAL SPRINT</p>
+      <p className="text-[10px] uppercase tracking-[.25em] text-muted text-mono mb-2">7 ДНЕЙ ПРИГЛАШЕНИЙ</p>
       <p className="text-sm mb-3">Пригласи друзей — получи бонус к подписке</p>
       <div className="space-y-2 mb-3">
         {sprint.milestones.map((m, i) => (
@@ -1326,7 +1326,7 @@ function AimaFixWidget() {
     <div className="bento col-span-6 p-4">
       <button onClick={() => setShow(!show)} className="flex items-center justify-between w-full text-left">
         <div>
-          <p className="text-sm font-bold">🔧 Aima Fix My VPN</p>
+          <p className="text-sm font-bold">🔧 Айма — помощь с VPN</p>
           <p className="text-[10px] text-muted">Автодиагностика проблем с подключением</p>
         </div>
         <span className="text-muted">{show ? "▲" : "▼"}</span>
@@ -1447,7 +1447,7 @@ function App() {
     return (
       <div className="min-h-app flex items-center justify-center px-6 text-center">
         <div className="bento p-6">
-          <p className="font-semibold text-rose-300 text-mono uppercase tracking-[.2em]">ERROR</p>
+          <p className="font-semibold text-rose-300 text-mono uppercase tracking-[.2em]">ОШИБКА</p>
           <p className="text-sm text-muted mt-2 break-all">{error}</p>
           <button onClick={() => { setError(null); setRefreshN(x=>x+1); }}
             className="mt-4 px-4 py-2 rounded-xl grad-primary text-white font-bold">Повторить</button>
@@ -1503,7 +1503,7 @@ createRoot(document.getElementById("root")).render(<App/>);
 <div style="display:flex;gap:8px;">
 <a href="https://apps.apple.com/app/hiddify-proxy-vpn/id6596777532" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#1f6feb;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">iOS</a>
 <a href="https://play.google.com/store/apps/details?id=app.hiddify.com" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#238636;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Android</a>
-<a href="https://github.com/hiddify/hiddify-app/releases/latest" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#30363d;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Desktop</a>
+<a href="https://github.com/hiddify/hiddify-app/releases/latest" target="_blank" style="flex:1;text-align:center;padding:10px;border-radius:10px;background:#30363d;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">Компьютер</a>
 </div>
 </div>
 <div style="padding:16px;border-radius:16px;background:linear-gradient(135deg,#0d1117,#161b22);border:1px solid #30363d;">

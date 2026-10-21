@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Bot Control</title>
+    <title>Управление торговым ботом</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script>
@@ -184,14 +184,14 @@
                         <svg class="w-8 h-8 mr-2 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
-                        <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Trading Bot</span>
+                        <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Торговый бот</span>
                     </a>
                 </div>
                 <div class="flex items-center gap-3">
                     <!-- Status Indicator -->
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30" id="statusBadge">
                         <span class="w-2 h-2 rounded-full bg-green-500 pulse-dot" id="statusDot"></span>
-                        <span class="text-xs font-medium text-green-700 dark:text-green-400" id="statusText">Online</span>
+                        <span class="text-xs font-medium text-green-700 dark:text-green-400" id="statusText">В сети</span>
                     </div>
                     <!-- Theme Toggle -->
                     <button id="darkModeToggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
@@ -215,18 +215,18 @@
 
     <!-- Theme Selector Panel -->
     <div id="themePanel" class="fixed top-16 right-4 z-50 hidden w-72 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4">
-        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Color Theme</h3>
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Цветовая тема</h3>
         <div class="grid grid-cols-4 gap-3 mb-4">
-            <button onclick="setTheme('blue')" class="theme-dot w-10 h-10 rounded-full bg-blue-500 hover:ring-4 hover:ring-blue-200 dark:hover:ring-blue-800 transition-all" title="Blue"></button>
-            <button onclick="setTheme('green')" class="theme-dot w-10 h-10 rounded-full bg-green-500 hover:ring-4 hover:ring-green-200 dark:hover:ring-green-800 transition-all" title="Green"></button>
-            <button onclick="setTheme('purple')" class="theme-dot w-10 h-10 rounded-full bg-purple-500 hover:ring-4 hover:ring-purple-200 dark:hover:ring-purple-800 transition-all" title="Purple"></button>
-            <button onclick="setTheme('red')" class="theme-dot w-10 h-10 rounded-full bg-red-500 hover:ring-4 hover:ring-red-200 dark:hover:ring-red-800 transition-all" title="Red"></button>
-            <button onclick="setTheme('orange')" class="theme-dot w-10 h-10 rounded-full bg-orange-500 hover:ring-4 hover:ring-orange-200 dark:hover:ring-orange-800 transition-all" title="Orange"></button>
-            <button onclick="setTheme('teal')" class="theme-dot w-10 h-10 rounded-full bg-teal-500 hover:ring-4 hover:ring-teal-200 dark:hover:ring-teal-800 transition-all" title="Teal"></button>
-            <button onclick="setTheme('pink')" class="theme-dot w-10 h-10 rounded-full bg-pink-500 hover:ring-4 hover:ring-pink-200 dark:hover:ring-pink-800 transition-all" title="Pink"></button>
+            <button onclick="setTheme('blue')" class="theme-dot w-10 h-10 rounded-full bg-blue-500 hover:ring-4 hover:ring-blue-200 dark:hover:ring-blue-800 transition-all" title="Синяя"></button>
+            <button onclick="setTheme('green')" class="theme-dot w-10 h-10 rounded-full bg-green-500 hover:ring-4 hover:ring-green-200 dark:hover:ring-green-800 transition-all" title="Зелёная"></button>
+            <button onclick="setTheme('purple')" class="theme-dot w-10 h-10 rounded-full bg-purple-500 hover:ring-4 hover:ring-purple-200 dark:hover:ring-purple-800 transition-all" title="Фиолетовая"></button>
+            <button onclick="setTheme('red')" class="theme-dot w-10 h-10 rounded-full bg-red-500 hover:ring-4 hover:ring-red-200 dark:hover:ring-red-800 transition-all" title="Красная"></button>
+            <button onclick="setTheme('orange')" class="theme-dot w-10 h-10 rounded-full bg-orange-500 hover:ring-4 hover:ring-orange-200 dark:hover:ring-orange-800 transition-all" title="Оранжевая"></button>
+            <button onclick="setTheme('teal')" class="theme-dot w-10 h-10 rounded-full bg-teal-500 hover:ring-4 hover:ring-teal-200 dark:hover:ring-teal-800 transition-all" title="Бирюзовая"></button>
+            <button onclick="setTheme('pink')" class="theme-dot w-10 h-10 rounded-full bg-pink-500 hover:ring-4 hover:ring-pink-200 dark:hover:ring-pink-800 transition-all" title="Розовая"></button>
         </div>
         <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
-            <p class="text-xs text-gray-500 dark:text-gray-400">Theme is saved automatically</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Тема сохраняется автоматически</p>
         </div>
     </div>
 
@@ -237,12 +237,12 @@
         <div class="gradient-bg rounded-2xl p-6 mb-6 text-white shadow-lg">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold mb-1">Trading Bot Control</h1>
-                    <p class="text-white/80 text-sm">Manage your trading bot parameters and monitor performance</p>
+                    <h1 class="text-2xl font-bold mb-1">Управление торговым ботом</h1>
+                    <p class="text-white/80 text-sm">Настраивайте торгового бота и следите за результатами</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right">
-                        <p class="text-xs text-white/60">Balance</p>
+                        <p class="text-xs text-white/60">Баланс</p>
                         <p class="text-lg font-bold">$12,450.00</p>
                     </div>
                 </div>
@@ -259,7 +259,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Profit</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Прибыль</p>
                         <p class="text-lg font-bold text-green-500">+$2,340</p>
                     </div>
                 </div>
@@ -272,7 +272,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Orders</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Ордера</p>
                         <p class="text-lg font-bold text-gray-900 dark:text-white">47</p>
                     </div>
                 </div>
@@ -285,7 +285,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Uptime</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Время работы</p>
                         <p class="text-lg font-bold text-gray-900 dark:text-white">99.8%</p>
                     </div>
                 </div>
@@ -298,7 +298,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Win Rate</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Доля прибыльных сделок</p>
                         <p class="text-lg font-bold text-gray-900 dark:text-white">73%</p>
                     </div>
                 </div>
@@ -317,8 +317,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Power</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Turn bot on/off</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Управление ботом</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Включить или выключить бота</p>
                     </div>
                 </div>
             </button>
@@ -332,8 +332,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Order Amount</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Set trading volume</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Сумма ордера</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Настроить объём торговли</p>
                     </div>
                 </div>
             </button>
@@ -347,8 +347,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Timeframes</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Configure intervals</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Таймфреймы</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Настроить интервалы</p>
                     </div>
                 </div>
             </button>
@@ -362,8 +362,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Coins</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Select trading pairs</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Монеты</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Выбрать торговые пары</p>
                     </div>
                 </div>
             </button>
@@ -377,8 +377,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Close Order</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Close active positions</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Закрыть ордер</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Закрыть открытые позиции</p>
                     </div>
                 </div>
             </button>
@@ -392,8 +392,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Profit / Loss</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">View PnL statistics</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Прибыль / убыток</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Посмотреть статистику прибыли и убытков</p>
                     </div>
                 </div>
             </button>
@@ -407,8 +407,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Information</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Bot status & details</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Информация</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Статус и сведения о боте</p>
                     </div>
                 </div>
             </button>
@@ -423,8 +423,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Settings</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Advanced configuration</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Настройки</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Расширенные настройки</p>
                     </div>
                 </div>
             </button>
@@ -438,8 +438,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-white">Logs</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">View activity history</p>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">Журнал</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Посмотреть историю действий</p>
                     </div>
                 </div>
             </button>
@@ -448,42 +448,42 @@
 
         <!-- Recent Activity -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Последние действия</h2>
             <div class="space-y-3">
                 <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3">
                         <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">BTC/USDT Long opened</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Открыта длинная позиция BTC/USDT</span>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">2 мин назад</span>
                 </div>
                 <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3">
                         <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">ETH/USDT Short closed (+$124)</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Закрыта короткая позиция ETH/USDT (+124 $)</span>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">15 мин назад</span>
                 </div>
                 <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3">
                         <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Timeframe changed to 4H</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Таймфрейм изменён на 4 ч</span>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">1 hr ago</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">1 ч назад</span>
                 </div>
                 <div class="flex items-center justify-between py-2">
                     <div class="flex items-center gap-3">
                         <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">SOL/USDT Long closed (+$89)</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Закрыта длинная позиция SOL/USDT (+89 $)</span>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">3 hr ago</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">3 ч назад</span>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="mt-6 text-center">
-            <p class="text-xs text-gray-500 dark:text-gray-400">Trading Bot v2.0 &bull; Powered by Flowbite</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Торговый бот v2.0 &bull; На базе Flowbite</p>
         </div>
     </div>
 
@@ -601,7 +601,7 @@
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-sm rounded-lg shadow-lg z-50 transition-opacity duration-300';
-            toast.textContent = `Command: ${message}`;
+            toast.textContent = `Команда: ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.opacity = '0';
